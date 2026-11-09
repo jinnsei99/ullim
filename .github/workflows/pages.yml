@@ -1,0 +1,38 @@
+# 울림 스튜디오를 GitHub Pages에 올린다 → https://jinnsei99.github.io/ullim/
+# 빌드 단계는 없다. .git · .github만 빼고 저장소 전체를 그대로 올린다(docs/ · CLAUDE.md도 공개된다).
+# 저장소 Settings → Pages → Source가 "GitHub Actions"여야 한다.
+name: 사이트 배포
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - name: 올릴 파일 모으기
+        run: |
+          mkdir _site
+          rsync -a --exclude '.git' --exclude '.github' --exclude '_site' ./ _site/
+          echo "올릴 파일 $(find _site -type f | wc -l)개"
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

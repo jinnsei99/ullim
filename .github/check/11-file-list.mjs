@@ -52,11 +52,21 @@ for (const path of folder) {
 for (const path of inHtml) if (!inFolder.has(path)) problems.push(`index.html에 있지만 파일이 없음: ${path}`);
 for (const path of inCore) if (!inFolder.has(path)) problems.push(`sw.js CORE에 있지만 파일이 없음: ${path}`);
 
-// 결과: 로그에 출력하고, Actions 실행 요약 화면에도 남긴다
+// 결과: 로그에 출력하고, Actions 실행 화면에도 남긴다
+// - Annotations 칸(로그인하지 않아도 보이고 PR 화면에도 뜬다): ::notice / ::error 줄
+// - Summary 칸(로그인해야 보인다): GITHUB_STEP_SUMMARY 파일
 const lines = problems.length
   ? [`파일 목록: 문제 ${problems.length}개 (index.html ${inHtml.size} · sw.js CORE ${inCore.size} · js/ 폴더 ${folder.length})`, ...problems.map(p => `  - ${p}`)]
   : [`파일 목록: js ${folder.length}개 일치 (index.html · sw.js CORE · js/ 폴더)`];
 (problems.length ? console.error : console.log)(lines.join('\n'));
+if (process.env.GITHUB_ACTIONS) {
+  // GitHub 규칙: 내용의 % · 줄바꿈은 %25 · %0A로, title 안의 : · ,는 %3A · %2C로 적는다
+  const data = s => s.replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A');
+  const prop = s => data(s).replace(/:/g, '%3A').replace(/,/g, '%2C');
+  console.log(problems.length
+    ? `::error title=${prop('점검 0-11 파일 목록')}::${data(lines.join('\n'))}`
+    : `::notice title=${prop('점검 0-11 파일 목록')}::${data(lines[0])}`);
+}
 if (process.env.GITHUB_STEP_SUMMARY) {
   const mark = problems.length ? '❌' : '✅';
   appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${mark} ${lines[0]}\n${lines.slice(1).join('\n')}${lines.length > 1 ? '\n' : ''}\n`);

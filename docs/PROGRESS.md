@@ -1,19 +1,22 @@
 # 울림 스튜디오 — 진행 기록
 
 ## 현재 상태 (2026-11-10)
-- 기능 폭은 넓다(README). 지금은 기능을 더하지 않고 기반을 다지는 중이다: [ROADMAP](ROADMAP.md) 단계 0. 0-A 문서와 0-B 저장소 분리는 끝났고, 0-C 자동 점검은 틀(0-10, PR [#1](https://github.com/jinnsei99/ullim/pull/1))과 점검 1 파일 목록(0-11, PR [#2](https://github.com/jinnsei99/ullim/pull/2))까지 했다. 둘 다 `main`에 머지됐고 `main` 푸시 점검 · 배포가 초록이다.
-- **점검: `main` 푸시 · PR마다 Actions의 '점검'이 `node .github/check/run.mjs`를 돌린다.** 검사는 1개(`11-file-list.mjs`)이고, 초록이면 실행 화면 Annotations 칸에 `파일 목록: js 43개 일치 (…)`가 뜬다. 검사 더하는 법은 `.github/check/README.md`.
+- 기능 폭은 넓다(README). 지금은 기능을 더하지 않고 기반을 다지는 중이다: [ROADMAP](ROADMAP.md) 단계 0. 0-A 문서와 0-B 저장소 분리는 끝났고, 0-C 자동 점검은 틀(0-10, PR [#1](https://github.com/jinnsei99/ullim/pull/1))과 점검 1 파일 목록(0-11, PR [#2](https://github.com/jinnsei99/ullim/pull/2)), 점검 2 JS 문법(0-12, PR [#4](https://github.com/jinnsei99/ullim/pull/4))까지 했다. #1 · #2는 `main`에 머지됐고 `main` 푸시 점검 · 배포가 초록이다. #4는 머지 전이다(PR 점검은 초록).
+- **점검: `main` 푸시 · PR마다 Actions의 '점검'이 `node .github/check/run.mjs`를 돌린다.** 검사는 2개(`11-file-list.mjs` · `12-js-syntax.mjs`)이고, 초록이면 실행 화면 Annotations 칸에 `파일 목록: js 43개 일치 (…)`와 `JS 문법: 44개 파일 오류 0 (js/ 43 · sw.js 1)`이 뜬다. 검사 더하는 법은 `.github/check/README.md`.
 - **저장소: `jinnsei99/ullim`(공개), 주소: https://jinnsei99.github.io/ullim/**. `main`에 푸시하면 `.github/workflows/pages.yml`이 Pages에 올린다.
 - **작업 폴더: 이 컴퓨터 바탕화면의 `ullim` 폴더**(이 저장소의 클론). 앞으로 모든 울림 작업은 여기서 한다. 바탕화면 `jinnsei` 클론은 옛 저장소(가계부 · 옛 주소 안내)용이다.
 - 옛 주소 `/jinnsei/ullim/`은 새 주소로 넘어간다(옛 저장소 PR [jinnsei99/jinnsei#42](https://github.com/jinnsei99/jinnsei/pull/42)). 컴퓨터 · 아이패드에서 제품 책임자가 확인했다.
 - 정한 것: 디자인 규칙은 토큰이 생기는 만큼 단계적으로 엄격하게 한다(`CLAUDE.md` '디자인 규칙').
 
 ## 다음 할 일
-1. 0-12 점검 2: JS 문법. `.github/check/12-…mjs`를 만든다(모든 JS 파일 문법 검사, 결과에 파일 수와 "오류 0"). 0-13(앱 열기)에는 헤드리스 크롬이 필요하다(아래 알려진 문제의 시험 도구 참고).
-2. (작게, 아무 때나) 배포 워크플로의 액션을 Node 24용 새 버전으로 올린다. 점검 워크플로는 이미 `checkout@v7` · `setup-node@v7`(둘 다 Node 24, 2026-11-10 기준 최신)을 쓴다.
+1. (내가) PR #4를 머지한다. 머지하면 `main` 푸시로 '점검'과 '사이트 배포'가 돈다. 점검 Annotations에 `JS 문법: 44개 파일 오류 0`이 뜨는지 본다.
+2. 0-13 점검 3: 앱 열기. 헤드리스 크롬으로 앱을 열어 콘솔 오류 0 · 데모 곡 불러오기를 본다. 0-12가 못 잡는 실행 오류(이름 오타 등)는 여기서 잡힌다. Actions ubuntu 이미지에 크롬이 들어 있는지는 실행 로그의 이미지 안내 문서 링크(Included Software)에서 먼저 확인한다. 이 컴퓨터에서 시험할 때는 아래 알려진 문제의 Python 시험 도구 참고.
+3. (작게, 아무 때나) 배포 워크플로의 액션을 Node 24용 새 버전으로 올린다. 점검 워크플로는 이미 `checkout@v7` · `setup-node@v7`(둘 다 Node 24, 2026-11-10 기준 최신)을 쓴다.
 
 ## 알려진 문제
-- 자동 점검은 검사가 1개(js 파일 목록)뿐이다. 문법 · 앱 열기 · 예전 프로젝트 · 템플릿 소리는 아직 사람이 눈으로 찾아야 한다(단계 0-C 0-12~).
+- 자동 점검은 검사가 2개(js 파일 목록 · JS 문법)뿐이다. 앱 열기(실행 오류) · 예전 프로젝트 · 템플릿 소리는 아직 사람이 눈으로 찾아야 한다(단계 0-C 0-13~).
+  - JS 문법 검사는 Node(크롬과 같은 엔진)가 읽을 수 있으면 통과시킨다. 아이패드 사파리가 아직 모르는 새 문법을 써도 초록이므로, 그런 실수는 아이패드에서 직접 열어 봐야 안다.
+  - `js/engine.js` 617줄 근처에 문자열로 들어 있는 Web Worker 코드 한 줄(스케줄러 타이머)은 문법 검사가 보지 않는다(문자열이라). 0-13 앱 열기에서 스케줄러가 돌면 함께 확인된다.
   - PR #40 본문에는 "회귀 점검 34묶음이 헤드리스 크롬에서 통과"라고 적혀 있지만 저장소에는 그런 파일이 없다(파일 이름으로 확인). 그 PR을 만든 세션의 환경에만 있었던 것으로 보인다. 찾을 수 있으면 0-C가 크게 줄어든다.
 - 화면 조합이 많다: 디자인 A·B·C × 컴퓨터·아이패드 버전 + 좁은 화면. `app.css` 1,548줄에 `data-design` 선택자 약 117개, `.touch` 99개, `.narrow` 107개가 겹친다.
 - 토큰 밖에 직접 쓴 값이 많다: 색 246개(`#…` 160 + `rgb(a)` 86), `font-size` 숫자 136개, `border-radius` 숫자 148개, `ui-*.js` 안의 색 글자 22개. 간격·글자 크기 토큰은 없다.
@@ -29,6 +32,15 @@
 ---
 
 ## 날짜별 기록
+
+### 2026-11-10 — 점검 2 JS 문법 (0-12, PR #4)
+- 한 일: `main`에서 `ci/check-js-syntax` 브랜치를 만들고 `.github/check/12-js-syntax.mjs`를 더했다. 저장소의 모든 `.js` 파일(`.git` · `.github` · `node_modules` 빼고, 지금 `js/` 43개 + `sw.js` 1개)과 `index.html` 안에 직접 쓴 `<script>`(지금은 없음)를 Node `vm.Script`로 보통 스크립트처럼 읽어만 본다(실행하지 않음). 하나라도 끝까지 읽을 수 없으면 빨강이고 결과에 파일 · 줄 번호 · 오류 내용이 나온다. 검사할 파일을 못 찾아도 빨강. `.github/check/README.md` 검사 목록에 한 줄 더했다. 앱 파일 · 워크플로 · `run.mjs`는 고치지 않았다.
+- 결정: 빨강 시험은 기존 파일 `js/model.js` 8번째 줄의 닫는 괄호 하나를 지운 시험 커밋으로 했다(제품 책임자 선택). 이유: "고치다가 괄호를 빠뜨린" 실수 그대로이고, 0-11은 초록인 채 0-12만 빨강이 되는 것을 보여 준다. 바로 `git revert`로 되돌려서 `js/`는 `main`과 같다(`git diff origin/main -- js/`가 비어 있음을 확인).
+- 확인: 초록([실행](https://github.com/jinnsei99/ullim/actions/runs/42665363648), `JS 문법: 44개 파일 오류 0 (js/ 43 · sw.js 1)`) → 괄호를 지워 빨강([실행](https://github.com/jinnsei99/ullim/actions/runs/42665507918), `JS 문법: 오류 1개 … js/model.js 8번째 줄: SyntaxError: missing ) after argument list`, 같은 실행에서 파일 목록은 초록) → 되돌려 다시 초록([실행](https://github.com/jinnsei99/ullim/actions/runs/42665592062)). 빨강 · 초록 실행 화면 Annotations 칸에 요약이 보이는 것을 로그인하지 않은 브라우저(Claude 앱 안 브라우저, "Sign in to view logs"가 뜨는 상태)로 확인했다.
+- 앱에서 찾은 문제: 없다. 44개 파일이 모두 문법 오류 없이 읽힌다.
+- 확인하지 못한 것: `main` 푸시로 도는 점검(머지 뒤 처음 돈다). 앱은 열어 보지 않았다(앱 파일이 최종적으로 바뀌지 않음).
+- 참고: 실행 화면 Annotations에 "ubuntu-latest가 Ubuntu 26으로 옮겨 간다"는 GitHub 안내가 함께 뜬다. 점검은 이미 Ubuntu 26.04에서 돌고 있어 영향은 없다.
+- 인수인계: 다음 세션은 '다음 할 일' 1(PR #4 머지 확인) → 2(0-13). 새 검사는 `12-js-syntax.mjs` 끝부분(Annotations · Summary 출력)을 그대로 따라 쓰면 된다. 이번 되돌리기 커밋은 메시지에서 "This reverts commit …" 줄이 빠졌다(제목으로 어떤 커밋인지는 알 수 있다). 다음에는 그 줄을 지우지 말고 꼬리말만 덧붙인다.
 
 ### 2026-11-10 — PR #1 · #2 머지
 - 한 일: 제품 책임자 요청으로 Claude가 PR #1(0-10) → PR #2(0-11) 순서로 머지 커밋으로 합쳤다(빨강 시험 · 되돌린 커밋 기록이 남도록). #1 머지 뒤 #2에 0-11 변경 4개 파일만 남은 것을 보고 #2를 머지했다. `ci/check-frame` · `ci/check-file-list` 브랜치는 지우지 않았다.

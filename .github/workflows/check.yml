@@ -1,0 +1,29 @@
+# 울림 스튜디오 점검: .github/check/run.mjs가 .github/check/의 검사를 번호 순서대로 모두 돌린다.
+# 하나라도 실패하면 빨강. 사이트 배포(pages.yml)와는 따로 돌고, 배포를 막거나 바꾸지 않는다.
+# 점검 파일은 .github 안에 있어서 사이트에 올라가지 않는다(배포가 .github를 뺀다).
+name: 점검
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: 점검
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: 검사 모두 돌리기
+        run: node .github/check/run.mjs

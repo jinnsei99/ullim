@@ -202,6 +202,7 @@
 - 직접 띄우기: 저장소 맨 위에서 `python -m http.server` → `http://localhost:8000/`. `index.html`을 파일로 열면 설치·오프라인 없이 그냥 돈다.
 - 앱 파일을 더하거나 빼면 `sw.js`의 `CORE` 목록을 고치고 `CACHE` 숫자를 올린다.
 - 배포: `.github/workflows/pages.yml`이 `main`에 푸시할 때마다(또는 Actions 탭에서 손으로 실행) `.git` · `.github`를 뺀 저장소 전체를 `_site/`에 복사해 GitHub Pages에 올린다. 주소는 https://jinnsei99.github.io/ullim/. `docs/`와 `CLAUDE.md`도 사이트에서 보인다.
+- 점검: `.github/workflows/check.yml`(이름 '점검')이 `main` 푸시 · PR · 손으로 실행할 때 `node .github/check/run.mjs`를 돌린다(Node 24, 읽기 권한만). `run.mjs`는 같은 폴더의 `숫자-이름.mjs`를 저장소 맨 위에서 번호 순서대로 하나씩 실행하고, 0이 아닌 값으로 끝난 것이 있으면 목록을 알리고 1로 끝난다(빨강). 배포와는 따로 돌고 배포를 막지 않는다. `.github` 안이라 사이트에 올라가지 않는다.
 - Claude 아티팩트 판: `window.claude`가 있으면 계정 db에 저장하고, 파일 받기는 Claude의 downloads 기능(zip·json 등만, 나머지는 zip으로 묶음)을 쓰고, 마이크 녹음은 막힌다. 이 판을 올리는 방법은 저장소에 적혀 있지 않다(확인 필요).
 
 ### 저장소 이전 (2026-11-10)

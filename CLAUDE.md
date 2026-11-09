@@ -9,7 +9,8 @@
 - 배포: `main`에 푸시 → GitHub Actions(`.github/workflows/pages.yml`) → GitHub Pages. 빌드 단계는 없다.
   주소: https://jinnsei99.github.io/ullim/
 - 2026-11-10에 `jinnsei99/jinnsei`의 `ullim/` 폴더에서 커밋 기록째 옮겨 왔다. 옛 주소에는 새 주소로 넘겨주는 페이지만 남아 있다(그 페이지는 옛 저장소에서 관리한다).
-- 자동 점검: 아직 없다(단계 0에서 만든다). 생기면 실행 방법을 여기에 적는다.
+- 자동 점검: `main` 푸시 · PR마다 GitHub Actions의 **점검**(`.github/workflows/check.yml`)이 `node .github/check/run.mjs`를 돌린다. `.github/check/`의 `번호-이름.mjs` 검사를 번호 순서대로 모두 돌리고, 하나라도 실패하면 빨강이다. 검사 더하는 법은 `.github/check/README.md`.
+  이 컴퓨터에는 Node가 없으므로 점검은 Actions에서만 돌린다(설치하지 않는다). 점검 파일은 `.github` 안이라 사이트에 올라가지 않고, 앱 파일이 아니므로 `sw.js` `CORE`에 넣지 않는다.
 
 ## 문서
 | 파일 | 쓰임 |
@@ -42,7 +43,7 @@
 7. **색 토큰은 `app.css`에 다섯 벌이 복사돼 있다**: `:root`(어두움), `@media (prefers-color-scheme: light)`, `:root[data-theme="light"]`, `html:root[data-skin="dark"]`, `html:root[data-skin="light"]`. 색 토큰을 고치거나 더하면 해당하는 벌을 모두 고친다.
 8. **화면은 스위치 세 개가 겹친다**: `body[data-design="a|b|c"]`(디자인), `html.touch`(아이패드 버전), `body.narrow`(폭 860px 미만, 컴퓨터 버전은 600px 미만. 이때는 디자인과 상관없이 한 칸씩 보는 화면). CSS 한 줄이 여러 조합에 걸릴 수 있다.
 9. **편집은 `U.commit('이름')`으로 확정한다.** 여기서 되돌리기 기록 · 엔진 `sync` · 화면 다시 그리기 · 1.5초 뒤 자동 저장이 이어진다. 끄는 도중처럼 아직 확정 전이면 `U.touch()`를 쓴다. 화면만 바꿀 때는 `U.inval('칸 이름')`(같은 프레임에 한 번만 그린다).
-10. **이 저장소의 파일은 모두 사이트에 그대로 공개된다.** 배포가 `.git` · `.github`만 빼고 전부 올리므로 `docs/`와 `CLAUDE.md`도 주소만 알면 누구나 읽는다(저장소도 공개다). 사이트 맨 위에 둔 파일은 모두 `/ullim/` 아래에 그대로 보인다. 문서에 비밀번호·개인 정보·공개하면 안 되는 계획을 쓰지 않는다.
+10. **이 저장소의 파일은 모두 사이트에 그대로 공개된다.** 배포가 `.git` · `.github`만 빼고 전부 올리므로(점검 파일 `.github/check/`는 그래서 올라가지 않는다) `docs/`와 `CLAUDE.md`도 주소만 알면 누구나 읽는다(저장소도 공개다). 사이트 맨 위에 둔 파일은 모두 `/ullim/` 아래에 그대로 보인다. 문서에 비밀번호·개인 정보·공개하면 안 되는 계획을 쓰지 않는다.
 11. **저장 공간은 사이트 `jinnsei99.github.io` 전체가 함께 쓴다.** 캠퍼스 가계부(`/jinnsei/`)와 울림 옛 주소 안내(`/jinnsei/ullim/`)도 같은 IndexedDB · localStorage · Cache Storage에 있다. 새 저장 이름은 `ullim` 접두를 붙이고, 캐시 · DB를 지우는 코드는 이 앱의 것만 고른다. `sw.js` `CACHE`는 33 아래로 내리지 않는다(옛 주소의 `ullim-v32`와 겹친다). Claude 앱 안의 브라우저 창은 서비스 워커를 등록하지 못하므로, 서비스 워커 · 오프라인 확인은 헤드리스 크롬이나 실제 기기로 한다.
 
 ## 영역 → 파일 지도

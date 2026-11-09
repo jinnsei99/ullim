@@ -5,7 +5,7 @@
 const OFF_DB = -70; // 센드/볼륨에서 -∞ 대신 쓰는 값
 
 /* ================= 만들기 ================= */
-function newScene() { return { id: U.uid('s'), name: '', tempo: null }; }
+function newScene() { return { id: U.uid('s', name: '', tempo: null }; }
 
 function newTrack(type, o) {
   o = o || {};

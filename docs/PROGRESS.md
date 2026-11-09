@@ -36,7 +36,7 @@
 - 결정: 점검 파일은 `scripts/check/`가 아니라 `.github/check/`에 둔다(제품 책임자 승인). 이유: 배포가 원래 `.github`를 빼고 올리므로, 배포 워크플로를 고치지 않고도 점검 파일이 사이트에 나가지 않는다.
 - 결정: 점검은 `main` 푸시 · PR · 손으로 실행할 때 돈다. 이유: 모든 브랜치 푸시에도 돌리면 PR 커밋 하나에 점검이 두 번 돌고 PR 화면에 두 줄씩 뜬다. PR 브랜치에 푸시하면 PR 쪽 점검이 돈다.
 - 결정: 이 컴퓨터에 Node를 설치하지 않고 Actions(Node 24)에서만 돌린다.
-- 확인: PR #1에서 초록([실행](https://github.com/jinnsei99/ullim/actions/runs/42658852606), 출력 `점검 틀이 돌았다`) → 실패하는 검사 `99-fail.mjs`를 넣어 빨강([실행](https://github.com/jinnsei99/ullim/actions/runs/42658972917), 출력 `점검 실패 1개: 99-fail.mjs`) → `git revert`로 되돌려 다시 초록([실행](https://github.com/jinnsei99/ullim/actions/runs/42659125194)). PR 화면 아래에 '점검'이 뜨는 것을 `gh pr checks`로 확인했다. 점검 실행에 Node 20 지원 끝 경고는 없었다.
+- 확인: PR #1에서 초록([실행](https://github.com/jinnsei99/ullim/actions/runs/42658852606), 출력 `점검 틀이 돌았다`) → 실패하는 검사 `99-fail.mjs`를 넣어 빨강([실행](https://github.com/jinnsei99/ullim/actions/runs/42658972917), 출력 `점검 실패 1개: 99-fail.mjs`) → `git revert`로 되돌려 다시 초록([실행](https://github.com/jinnsei99/ullim/actions/runs/42659125194)). PR 화면 아래에 '점검'이 뜨는 것을 `gh pr checks`로 확인했다. 점검 실행에 Node 20 지원 끝 경고는 없었다. 제품 책임자가 PR 화면의 점검 표시와 빨강 실행을 보고 "된다"고 확인했다.
 - 확인하지 못한 것: `main` 푸시로 도는 점검(머지 뒤 처음 돈다). 점검 파일이 사이트에 안 올라가는지는 배포 워크플로의 `--exclude '.github'`를 읽어서 확인했고, 실제 배포로는 보지 못했다(배포는 `main`에서만 돈다). 앱은 열어 보지 않았다(앱 파일이 바뀌지 않음).
 - 인수인계: 다음 세션은 위 '다음 할 일' 1 → 2 순서로 한다. 검사를 더할 때는 `.github/check/README.md`만 따르면 되고, 워크플로나 `run.mjs`는 고치지 않아도 된다. 실패를 시험할 때는 커밋을 따로 만들고 `git revert`로 되돌려 기록을 남긴다(`git revert`는 `-q`를 받지 않는다).
 

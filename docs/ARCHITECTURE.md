@@ -192,22 +192,23 @@
 - 자동 자르기는 512샘플 단위 소리 세기로 어택 후보를 찾고, 120ms 안의 후보(자음+모음, 어택의 여러 프레임)를 한 덩어리로 묶은 뒤 샘플 단위로 어택 2ms 앞에서 잘라요.
 
 ## 서비스 워커 · 배포
-- `sw.js`: `CACHE = 'ullim-v32'`. 설치할 때 `CORE` 목록(앱 파일 + 아이콘)을 받아 둔다. 지금까지는 파일을 더하거나 빼지 않고 내용만 고쳐도 숫자를 올려 왔다(PR #40: 31 → 32).
+- `sw.js`: `CACHE = 'ullim-v33'`. 설치할 때 `CORE` 목록(앱 파일 + 아이콘)을 받아 둔다. 지금까지는 파일을 더하거나 빼지 않고 내용만 고쳐도 숫자를 올려 왔다(옛 저장소 PR #40: 31 → 32, 저장소 이전: 32 → 33).
+  - 캐시 저장소(Cache Storage)는 사이트(`jinnsei99.github.io`) 단위로 하나라서, 옛 주소 `/jinnsei/ullim/`의 저장본과 같은 곳에 있다. 이전 때 숫자를 올린 것은 옛 앱의 `ullim-v32`와 이름이 겹치지 않게 하려는 것이다. 다음에 숫자를 올릴 때도 32 이하로 돌아가지 않는다.
   - 앱 파일: 인터넷이 되면 언제나 새 파일을 먼저 받고(그래서 고친 내용이 바로 보인다), 안 되면 저장본을 쓴다. 받은 것은 같은 캐시에 쌓인다. 녹음 샘플 MP3는 `CORE`에 없고, 처음 쓸 때 받은 것이 이렇게 쌓인다.
   - 글꼴: 저장본을 먼저 쓰고 뒤에서 새로 받아 둔다.
   - 이 앱 폴더 밖의 요청(같은 사이트의 다른 앱 포함)은 건드리지 않는다.
   - 새 버전이 켜지면 `ullim-`로 시작하는 옛 캐시를 지운다.
 - 등록은 `main.js` `setupWebApp()`이 한다(https나 localhost에서만).
-- 직접 띄우기: 이 폴더에서 `python -m http.server` → `http://localhost:8000/`. `index.html`을 파일로 열면 설치·오프라인 없이 그냥 돈다.
+- 직접 띄우기: 저장소 맨 위에서 `python -m http.server` → `http://localhost:8000/`. `index.html`을 파일로 열면 설치·오프라인 없이 그냥 돈다.
 - 앱 파일을 더하거나 빼면 `sw.js`의 `CORE` 목록을 고치고 `CACHE` 숫자를 올린다.
-- 배포(지금): 저장소의 `.github/workflows/campus-gagyebu-pages.yml`이 `main`에 `ullim/`이나 `campus-gagyebu/`가 바뀔 때마다 `_site/`(가계부) + `_site/ullim/`(울림)으로 묶어 GitHub Pages에 올린다. Pages의 Source가 "GitHub Actions"가 아니면 배포를 건너뛰고 안내만 남긴다. `ullim/` 폴더 전체가 올라가므로 `docs/`와 `CLAUDE.md`도 사이트에서 보인다.
+- 배포: `.github/workflows/pages.yml`이 `main`에 푸시할 때마다(또는 Actions 탭에서 손으로 실행) `.git` · `.github`를 뺀 저장소 전체를 `_site/`에 복사해 GitHub Pages에 올린다. 주소는 https://jinnsei99.github.io/ullim/. `docs/`와 `CLAUDE.md`도 사이트에서 보인다.
 - Claude 아티팩트 판: `window.claude`가 있으면 계정 db에 저장하고, 파일 받기는 Claude의 downloads 기능(zip·json 등만, 나머지는 zip으로 묶음)을 쓰고, 마이크 녹음은 막힌다. 이 판을 올리는 방법은 저장소에 적혀 있지 않다(확인 필요).
 
-### 저장소 분리 영향 (2026-11-09 분리하기로 결정)
-- 사이트 주소는 README에만 적혀 있다. 코드와 `manifest.webmanifest`는 모두 상대 주소라 새 주소에서도 그대로 돈다.
-- 주소가 바뀌면(예: `jinnsei99.github.io/jinnsei/ullim/` → `jinnsei99.github.io/<새 저장소>/`):
-  - 홈 화면에 추가한 앱은 새 주소로 다시 추가해야 한다.
-  - 아이패드 홈 화면 앱은 사파리와 저장 공간이 따로일 수 있어서, 그 안의 프로젝트는 옮기기 전에 `.ullim.json`으로 받아 두고 새 앱에서 연다.
-  - 브라우저 탭에서는 같은 사이트(`jinnsei99.github.io`)라 IndexedDB · localStorage가 이어질 것으로 예상한다(확인 필요).
-  - 옛 주소의 서비스 워커는 남는다. 인터넷이 되면 새 파일을 먼저 받으므로, 옛 주소에 안내 페이지를 두면 그게 보인다.
+### 저장소 이전 (2026-11-10)
+- `jinnsei99/jinnsei`의 `ullim/`을 `git subtree split`으로 떼어 이 저장소 맨 위로 옮겼다(커밋 46개 유지). 주소: `jinnsei99.github.io/jinnsei/ullim/` → `jinnsei99.github.io/ullim/`.
+- 사이트 주소는 README와 `CLAUDE.md`에만 적혀 있다. 코드와 `manifest.webmanifest`는 모두 상대 주소라 고치지 않았다. manifest의 `id: "./"`가 새 주소 기준이 되므로 브라우저는 새 앱을 다른 앱으로 본다.
+- 저장 공간: 옛 주소와 새 주소는 같은 사이트(origin `https://jinnsei99.github.io`)라 IndexedDB(`ullim` · `ullim-files`) · localStorage · Cache Storage를 함께 쓴다. 그래서 같은 브라우저 탭에서는 프로젝트가 그대로 보인다. 아이패드 홈 화면 앱은 사파리와 저장 공간이 따로라서, 새로 추가한 앱으로는 `.ullim.json` 파일로 옮긴다.
+- 옛 주소에 남긴 것(옛 저장소 `ullim/`, 거기서 관리):
+  - `index.html`: 주소 뒤의 `?…` `#…`까지 붙여 새 주소로 바로 넘긴다(`location.replace`, 스크립트가 꺼져 있으면 `meta refresh`).
+  - `sw.js`: 옛 서비스 워커 정리용. 옛 서비스 워커는 페이지를 열 때 `sw.js`가 바뀌었는지 확인하므로, 옛 주소를 한 번 열면 이것이 들어온다. 들어오면 ① 옛 주소(`/jinnsei/ullim/`) 파일만 담긴 `ullim-` 캐시를 지우고(새 앱 캐시는 남김) ② 스스로 등록을 풀고 ③ 열려 있던 옛 화면을 다시 불러 안내 페이지 → 새 주소로 보낸다.
 - 할 일 목록은 [ROADMAP.md](ROADMAP.md) 단계 0.

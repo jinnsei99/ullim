@@ -1,15 +1,14 @@
 # 울림 스튜디오 — 작업 규칙
 
 브라우저에서 바로 돌아가는 음악 작업 앱(PWA)이다. 빌드 없는 바닐라 JS이고, 화면 글은 한국어다.
-이 파일의 경로는 모두 이 폴더(`ullim/`) 기준이다. 자세한 구조는 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+저장소는 `jinnsei99/ullim`이고, 이 파일의 경로는 모두 저장소 맨 위 기준이다. 자세한 구조는 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## 실행 · 배포
-- 실행: 이 폴더에서 `python -m http.server` → http://localhost:8000/
+- 실행: 저장소 맨 위에서 `python -m http.server` → http://localhost:8000/
   서비스 워커는 localhost·https에서만 켜진다. `index.html`을 파일로 열면 오프라인·설치 없이, 녹음 샘플 대신 계산한 소리로 돈다.
-- 배포: `main`에 푸시 → GitHub Actions → GitHub Pages. 빌드 단계는 없다.
-  지금은 저장소 맨 위의 `.github/workflows/campus-gagyebu-pages.yml`이 캠퍼스 가계부(사이트 맨 위)와 울림(`/ullim/`)을 한 사이트로 묶어 올린다.
-  주소: https://jinnsei99.github.io/jinnsei/ullim/
-- 별도 저장소로 옮기기로 했다(2026-11-09 결정, [docs/ROADMAP.md](docs/ROADMAP.md) 단계 0). 옮기면 이 절의 워크플로·주소를 고친다.
+- 배포: `main`에 푸시 → GitHub Actions(`.github/workflows/pages.yml`) → GitHub Pages. 빌드 단계는 없다.
+  주소: https://jinnsei99.github.io/ullim/
+- 2026-11-10에 `jinnsei99/jinnsei`의 `ullim/` 폴더에서 커밋 기록째 옮겨 왔다. 옛 주소에는 새 주소로 넘겨주는 페이지만 남아 있다(그 페이지는 옛 저장소에서 관리한다).
 - 자동 점검: 아직 없다(단계 0에서 만든다). 생기면 실행 방법을 여기에 적는다.
 
 ## 문서
@@ -39,11 +38,11 @@
    값이 있는 곳: `js/acoustic.js`의 `LOUD_RMS` · `LOUD_PEAK`와 악기별 `lvl` · `slvl`, 녹음 드럼은 `js/samples.js`의 `gains`, Amp는 `js/effects.js`의 `comp`.
    바꾼 뒤에는 같은 프레이즈를 옆 악기와 번갈아 들어 크기가 비슷한지 확인한다.
 6. **녹음 샘플을 더하면** `samples/CREDITS.txt`와 README의 '소리 출처'를 고친다. 라이선스는 CC0나 CC BY만 쓴다(CC BY는 출처 표기 문장까지 적는다).
-   `js/samples.js`는 도구로 만든 목록이라 손으로 고치지 않는다(만드는 도구는 이 폴더에 없다. 위치 확인 필요).
+   `js/samples.js`는 도구로 만든 목록이라 손으로 고치지 않는다(만드는 도구는 이 저장소에 없다. 위치 확인 필요).
 7. **색 토큰은 `app.css`에 다섯 벌이 복사돼 있다**: `:root`(어두움), `@media (prefers-color-scheme: light)`, `:root[data-theme="light"]`, `html:root[data-skin="dark"]`, `html:root[data-skin="light"]`. 색 토큰을 고치거나 더하면 해당하는 벌을 모두 고친다.
 8. **화면은 스위치 세 개가 겹친다**: `body[data-design="a|b|c"]`(디자인), `html.touch`(아이패드 버전), `body.narrow`(폭 860px 미만, 컴퓨터 버전은 600px 미만. 이때는 디자인과 상관없이 한 칸씩 보는 화면). CSS 한 줄이 여러 조합에 걸릴 수 있다.
 9. **편집은 `U.commit('이름')`으로 확정한다.** 여기서 되돌리기 기록 · 엔진 `sync` · 화면 다시 그리기 · 1.5초 뒤 자동 저장이 이어진다. 끄는 도중처럼 아직 확정 전이면 `U.touch()`를 쓴다. 화면만 바꿀 때는 `U.inval('칸 이름')`(같은 프레임에 한 번만 그린다).
-10. **이 폴더의 파일은 모두 사이트에 그대로 공개된다.** 배포가 폴더 전체를 복사하므로 `docs/`와 `CLAUDE.md`도 주소만 알면 누구나 읽는다. 문서에 비밀번호·개인 정보·공개하면 안 되는 계획을 쓰지 않는다.
+10. **이 저장소의 파일은 모두 사이트에 그대로 공개된다.** 배포가 `.git` · `.github`만 빼고 전부 올리므로 `docs/`와 `CLAUDE.md`도 주소만 알면 누구나 읽는다(저장소도 공개다). 사이트 맨 위에 둔 파일은 모두 `/ullim/` 아래에 그대로 보인다. 문서에 비밀번호·개인 정보·공개하면 안 되는 계획을 쓰지 않는다.
 
 ## 영역 → 파일 지도
 | 영역 | 파일 |
@@ -76,7 +75,7 @@
   확인하지 못한 것은 확인하지 못했다고 쓴다.
 - 작업 단위마다 커밋한다. 메시지는 지금처럼 `feat: …` / `fix: …` / `docs: …` + 무엇이 되었는지(지금까지는 영어로 썼다).
 - 사용자에게 보이는 기능을 바꾸면 README의 해당 절만 고친다. 구조가 바뀌면 `docs/ARCHITECTURE.md`를, 작업이 끝나면 `docs/PROGRESS.md`와 `docs/ROADMAP.md`의 상태를 고친다.
-- 이 폴더 밖(같은 저장소의 다른 앱)은 요청 없이 읽지도 고치지도 않는다.
+- 옛 저장소 `jinnsei99/jinnsei`(캠퍼스 가계부 등 다른 앱과 옛 주소 안내 페이지)는 요청 없이 읽지도 고치지도 않는다.
 
 ## 소통
 - 한국어로, 쉬운 말로 쓴다. 코드 용어를 쓰면 한 번 풀어 쓴다.

@@ -1,7 +1,7 @@
 # 울림 스튜디오 — 진행 기록
 
 ## 현재 상태 (2026-11-10)
-- 기능 폭은 넓다(README). 지금은 기능을 더하지 않고 기반을 다지는 중이다: [ROADMAP](ROADMAP.md) 단계 0. 0-A 문서와 0-B 저장소 분리는 끝났고, 0-C 자동 점검은 틀(0-10, PR [#1](https://github.com/jinnsei99/ullim/pull/1))과 점검 1 파일 목록(0-11, PR [#2](https://github.com/jinnsei99/ullim/pull/2))까지 했다. 둘 다 아직 머지 전이다(머지는 제품 책임자가 한다. #1 먼저).
+- 기능 폭은 넓다(README). 지금은 기능을 더하지 않고 기반을 다지는 중이다: [ROADMAP](ROADMAP.md) 단계 0. 0-A 문서와 0-B 저장소 분리는 끝났고, 0-C 자동 점검은 틀(0-10, PR [#1](https://github.com/jinnsei99/ullim/pull/1))과 점검 1 파일 목록(0-11, PR [#2](https://github.com/jinnsei99/ullim/pull/2))까지 했다. 둘 다 `main`에 머지됐고 `main` 푸시 점검 · 배포가 초록이다.
 - **점검: `main` 푸시 · PR마다 Actions의 '점검'이 `node .github/check/run.mjs`를 돌린다.** 검사는 1개(`11-file-list.mjs`)이고, 초록이면 실행 화면 Annotations 칸에 `파일 목록: js 43개 일치 (…)`가 뜬다. 검사 더하는 법은 `.github/check/README.md`.
 - **저장소: `jinnsei99/ullim`(공개), 주소: https://jinnsei99.github.io/ullim/**. `main`에 푸시하면 `.github/workflows/pages.yml`이 Pages에 올린다.
 - **작업 폴더: 이 컴퓨터 바탕화면의 `ullim` 폴더**(이 저장소의 클론). 앞으로 모든 울림 작업은 여기서 한다. 바탕화면 `jinnsei` 클론은 옛 저장소(가계부 · 옛 주소 안내)용이다.
@@ -9,9 +9,8 @@
 - 정한 것: 디자인 규칙은 토큰이 생기는 만큼 단계적으로 엄격하게 한다(`CLAUDE.md` '디자인 규칙').
 
 ## 다음 할 일
-1. (내가) PR #1 → PR #2 순서로 머지한다. #2는 #1 위에 쌓은 브랜치라, #1을 먼저 머지하면 #2에는 0-11 변경만 남는다. 머지하면 `main` 푸시로 '점검'과 '사이트 배포'가 함께 돈다. Actions 탭에서 둘 다 초록이고 점검 Annotations에 `js 43개 일치`가 뜨는지 본다(`main` 푸시로 도는 점검은 이때 처음 확인된다).
-2. 0-12 점검 2: JS 문법. `.github/check/12-…mjs`를 만든다(모든 JS 파일 문법 검사, 결과에 파일 수와 "오류 0"). 0-13(앱 열기)에는 헤드리스 크롬이 필요하다(아래 알려진 문제의 시험 도구 참고).
-3. (작게, 아무 때나) 배포 워크플로의 액션을 Node 24용 새 버전으로 올린다. 점검 워크플로는 이미 `checkout@v7` · `setup-node@v7`(둘 다 Node 24, 2026-11-10 기준 최신)을 쓴다.
+1. 0-12 점검 2: JS 문법. `.github/check/12-…mjs`를 만든다(모든 JS 파일 문법 검사, 결과에 파일 수와 "오류 0"). 0-13(앱 열기)에는 헤드리스 크롬이 필요하다(아래 알려진 문제의 시험 도구 참고).
+2. (작게, 아무 때나) 배포 워크플로의 액션을 Node 24용 새 버전으로 올린다. 점검 워크플로는 이미 `checkout@v7` · `setup-node@v7`(둘 다 Node 24, 2026-11-10 기준 최신)을 쓴다.
 
 ## 알려진 문제
 - 자동 점검은 검사가 1개(js 파일 목록)뿐이다. 문법 · 앱 열기 · 예전 프로젝트 · 템플릿 소리는 아직 사람이 눈으로 찾아야 한다(단계 0-C 0-12~).
@@ -31,14 +30,19 @@
 
 ## 날짜별 기록
 
+### 2026-11-10 — PR #1 · #2 머지
+- 한 일: 제품 책임자 요청으로 Claude가 PR #1(0-10) → PR #2(0-11) 순서로 머지 커밋으로 합쳤다(빨강 시험 · 되돌린 커밋 기록이 남도록). #1 머지 뒤 #2에 0-11 변경 4개 파일만 남은 것을 보고 #2를 머지했다. `ci/check-frame` · `ci/check-file-list` 브랜치는 지우지 않았다.
+- 확인: `main` 푸시 두 번 모두 '점검'과 '사이트 배포'가 초록(마지막 점검 [실행](https://github.com/jinnsei99/ullim/actions/runs/42664094911), Annotations에 `파일 목록: js 43개 일치 (…)`). 실제 사이트에서 `/ullim/` · `index.html` · `sw.js`는 200, `.github/check/run.mjs` · `11-file-list.mjs`는 404 — 점검 파일이 사이트에 안 올라가는 것을 실제 배포로 확인했다.
+- 확인하지 못한 것: 앱은 열어 재생해 보지 않았다(앱 파일이 바뀌지 않음).
+
 ### 2026-11-10 — 점검 1 파일 목록 맞추기 (0-11, PR #2)
 - 한 일: `ci/check-frame` 위에 `ci/check-file-list` 브랜치를 만들고 `.github/check/11-file-list.mjs`를 더했다. `index.html`의 `<script src>` · `sw.js` `CORE`의 js · 실제 `js/` 폴더(하위 폴더 포함)를 서로 대 보고, 한쪽에만 있는 파일 · 없는 파일을 가리키는 줄 · 한 목록에 두 번 있는 줄 · 목록을 못 찾음이면 빨강이다. 순서와 js 아닌 파일은 보지 않는다. `.github/check/README.md`에 검사 목록과 요약 남기는 법을 적었다. 앱 파일 · `sw.js` · 워크플로 · `run.mjs`는 고치지 않았다.
 - 결정: 요약 한 줄을 실행 화면 **Annotations** 칸(`::notice` / `::error`)에 남긴다. 이유: 처음에 넣은 Summary 칸(`GITHUB_STEP_SUMMARY`)과 로그는 로그인하지 않으면 안 보였다(로그인 안 한 브라우저로 확인). Annotations는 로그인 없이 보이고 PR 화면에도 뜬다. Summary 칸에도 그대로 남긴다.
 - 결정: 빨강 시험은 기존 앱 파일을 고치지 않고, 어느 목록에도 없는 빈 파일 `js/zz-test.js`를 더해서 했다("파일을 더하고 목록을 안 고친" 실수 그대로).
 - 확인: 초록([실행](https://github.com/jinnsei99/ullim/actions/runs/42663184800), `파일 목록: js 43개 일치 (index.html · sw.js CORE · js/ 폴더)`) → `js/zz-test.js`를 더해 빨강([실행](https://github.com/jinnsei99/ullim/actions/runs/42663267807), `문제 2개 … index.html에 없음: js/zz-test.js · sw.js CORE에 없음: js/zz-test.js`) → `git revert`로 되돌려 다시 초록([실행](https://github.com/jinnsei99/ullim/actions/runs/42663324385)). 두 실행 화면의 Annotations 칸에 요약이 보이는 것을 로그인하지 않은 브라우저로 확인했다. Annotations를 더하기 전에도 같은 시험을 한 번 했다(빨강 [실행](https://github.com/jinnsei99/ullim/actions/runs/42662910959)).
 - 앱에서 찾은 문제: 없다. 지금 세 목록은 43개씩 정확히 일치한다.
-- 확인하지 못한 것: `main` 푸시로 도는 점검(머지 뒤 처음 돈다). Summary 칸은 로그인해야 보여서 직접 보지 못했다. 앱은 열어 보지 않았다(앱 파일이 바뀌지 않음).
-- 인수인계: 다음 세션은 '다음 할 일' 1(머지 확인) → 2(0-12) 순서로 한다. 새 검사는 `11-file-list.mjs`의 결과 출력 부분(Annotations · Summary)을 그대로 따라 쓰면 된다. PR #2가 머지되기 전에 0-12를 시작하면 `ci/check-file-list` 위에 브랜치를 만든다.
+- 확인하지 못한 것: `main` 푸시로 도는 점검(→ 위 머지 기록에서 확인함). Summary 칸은 로그인해야 보여서 직접 보지 못했다. 앱은 열어 보지 않았다(앱 파일이 바뀌지 않음).
+- 인수인계: 다음 세션은 '다음 할 일' 1(0-12)부터 한다. `main`에서 브랜치를 만든다. 새 검사는 `11-file-list.mjs`의 결과 출력 부분(Annotations · Summary)을 그대로 따라 쓰면 된다.
 
 ### 2026-11-10 — 점검 틀 (0-10, PR #1)
 - 한 일: `ci/check-frame` 브랜치에서 '점검' 워크플로(`.github/workflows/check.yml`)와 검사를 모두 차례로 돌리는 `.github/check/run.mjs`, 검사 더하는 법(`.github/check/README.md`)을 만들었다. 앱 파일 · `sw.js` · 배포 워크플로는 건드리지 않았다.

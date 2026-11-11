@@ -450,7 +450,7 @@ def('limiter', {
   layout: [{ visual: 'comp', params: ['gain', 'ceil', 'rel'] }]
 });
 
-def('pump', {
+def('duck', {
   name: 'Ducker', type: 'audio',
   info: '박자마다 음량을 꾹 눌렀다 풀어서 사이드체인 펌핑 효과를 만들어요. 베이스나 패드에 걸면 킥이 또렷해져요.',
   params: [

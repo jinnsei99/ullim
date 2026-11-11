@@ -311,7 +311,7 @@ function renderTabs() {
   if (!els.ctabs || U.layout() !== 'c') return;
   U.clear(els.ctabs);
   const t = U.selTrack();
-  const chip = t ? h('span', { class: 'tc-track', style: { '--c': U.colorOf(t.color) } }, h('span', { class: 'tc-sw' }), h('b', { text: t.type === 'master' ? '마스터' : U.trackLabel(pr(), t) }), h('span', { class: 'tc-sub', text: trackSub(t) })) : null;
+  const chip = t ? h('span', { class: 'tc-track', style: { '--c': U.colorOf(t.color) } }, h('span', { class: 'tc-sw' }), h('b', { text: t.type === 'master' ? '마스터' : U.trackLabl(pr(), t) }), h('span', { class: 'tc-sub', text: trackSub(t) })) : null;
   if (chip) info(chip, '고른 트랙', '작업대는 이 트랙을 보여 줘요. 곡 지도에서 트랙이나 클립을 누르면 바뀌어요.');
   const map = h('div', { class: 'tc-map' }, h('span', { class: 'tc-ml', text: '곡 지도' }),
     U.seg([['arrange', '타임라인', '곡을 시간 순서로 보여 줘요. Tab으로 바꿔요.'], ['session', '클립 런처', '씬과 클립 칸을 보여 줘요. Tab으로 바꿔요.']], ui.view === 'session' ? 'session' : 'arrange', v => setSongView(v)));

@@ -1,4 +1,4 @@
-# 울림 스튜디오 화면 촬영 (ROADMAP 0-16): 디자인 A·B·C × 컴퓨터 · 아이패드 버전 6장 + 좁은 화면 1장을 헤드리스 크롬으로 찍는다.
+# 울림 스튜디오 화면 촬영 (ROADMAP 0-16 · 0-17): 디자인 A·B·C × 컴퓨터 · 아이패드 버전 6장 + 좁은 화면 1장을 어두운 화면 · 밝은 화면으로 한 벌씩(14장) 헤드리스 크롬으로 찍는다.
 # 점검(check.yml)과 배포(pages.yml)와는 따로 돈다. 그림은 이 실행 화면 아래 Artifacts에 zip으로 올라간다(받으려면 로그인).
 # PR마다 PR의 마지막 커밋을 찍고, Actions 탭에서 손으로 실행하면 고른 브랜치를 찍는다. 찍는 법은 .github/shots/shoot.mjs 맨 위.
 name: 화면 촬영
@@ -27,7 +27,7 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-      - name: 화면 7장 찍기
+      - name: 화면 14장 찍기 (어두움 7 · 밝음 7)
         run: node .github/shots/shoot.mjs
       - name: 내려받을 이름 정하기
         id: name

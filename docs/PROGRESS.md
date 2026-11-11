@@ -1,20 +1,19 @@
 # 울림 스튜디오 — 진행 기록
 
 ## 현재 상태 (2026-11-11)
-- 기능 폭은 넓다(README). 지금은 기능을 더하지 않고 기반을 다지는 중이다: [ROADMAP](ROADMAP.md) 단계 0. 0-A 문서와 0-B 저장소 분리는 끝났고, 0-C 자동 점검은 틀(0-10, PR [#1](https://github.com/jinnsei99/ullim/pull/1))과 점검 1 파일 목록(0-11, PR [#2](https://github.com/jinnsei99/ullim/pull/2)), 점검 2 JS 문법(0-12, PR [#4](https://github.com/jinnsei99/ullim/pull/4)), 점검 3 앱 열기(0-13, PR [#5](https://github.com/jinnsei99/ullim/pull/5)), 점검 4 예전 프로젝트 열기(0-14, PR [#7](https://github.com/jinnsei99/ullim/pull/7))까지 `main`에 머지됐고 `main` 푸시 점검 · 배포가 초록이다. 0-15 준비로 13 · 14의 크롬 부분을 `.github/check/lib/browser.mjs`로 모았다(PR [#9](https://github.com/jinnsei99/ullim/pull/9), 머지됨). 점검 5 장르 템플릿(0-15, PR [#11](https://github.com/jinnsei99/ullim/pull/11))은 PR에서 초록 · 빨강 시험까지 끝났고 **머지 전**이다. 이것으로 0-C 자동 점검 다섯 개가 다 만들어졌다.
-- **점검: `main` 푸시 · PR마다 Actions의 '점검'이 `node .github/check/run.mjs`를 돌린다.** 검사는 5개(`11-file-list.mjs` · `12-js-syntax.mjs` · `13-app-open.mjs` · `14-old-projects.mjs` · `15-genre-templates.mjs`, 15는 PR #11에만 있음)이고, 초록이면 실행 화면 Annotations 칸에 `파일 목록: js 43개 일치 (…)`, `JS 문법: 44개 파일 오류 0 (js/ 43 · sw.js 1)`, `앱 열기: 화면 8개 콘솔 오류 0 · 데모 곡 '새벽 네 시' 트랙 7개 불러옴 · 재생 8/8`, `예전 프로젝트: 견본 11개 모두 그대로 (…)`(+ 견본마다 한 줄), `장르 템플릿: 10종 모두 소리 남 · 넘침 0 (가장 꽉 찬 씬 4마디)`(+ 장르마다 `하우스 (드롭): RMS -11.1 dB · 피크 -0.7 dB`)가 뜬다. 점검 한 번은 약 1분 40초(앱 열기 약 45초 · 예전 프로젝트 약 12초 · 장르 템플릿 약 30초, 렌더는 장르마다 1.4~4초). 검사 더하는 법은 `.github/check/README.md`. 크롬이 필요한 검사는 `.github/check/lib/browser.mjs`(웹 서버 · 크롬 켜기 · CDP · 앱 열기)를 쓴다.
+- 기능 폭은 넓다(README). 지금은 기능을 더하지 않고 기반을 다지는 중이다: [ROADMAP](ROADMAP.md) 단계 0. 0-A 문서와 0-B 저장소 분리는 끝났고, 0-C 자동 점검은 틀(0-10, PR [#1](https://github.com/jinnsei99/ullim/pull/1))과 점검 1 파일 목록(0-11, PR [#2](https://github.com/jinnsei99/ullim/pull/2)), 점검 2 JS 문법(0-12, PR [#4](https://github.com/jinnsei99/ullim/pull/4)), 점검 3 앱 열기(0-13, PR [#5](https://github.com/jinnsei99/ullim/pull/5)), 점검 4 예전 프로젝트 열기(0-14, PR [#7](https://github.com/jinnsei99/ullim/pull/7))까지 `main`에 머지됐고 `main` 푸시 점검 · 배포가 초록이다. 0-15 준비로 13 · 14의 크롬 부분을 `.github/check/lib/browser.mjs`로 모았다(PR [#9](https://github.com/jinnsei99/ullim/pull/9), 머지됨). 점검 5 장르 템플릿(0-15, PR [#11](https://github.com/jinnsei99/ullim/pull/11))도 머지됐다(`main` 푸시 점검 · 배포 초록). 이것으로 0-C 자동 점검 다섯 개가 다 만들어졌다.
+- **점검: `main` 푸시 · PR마다 Actions의 '점검'이 `node .github/check/run.mjs`를 돌린다.** 검사는 5개(`11-file-list.mjs` · `12-js-syntax.mjs` · `13-app-open.mjs` · `14-old-projects.mjs` · `15-genre-templates.mjs`)이고, 초록이면 실행 화면 Annotations 칸에 `파일 목록: js 43개 일치 (…)`, `JS 문법: 44개 파일 오류 0 (js/ 43 · sw.js 1)`, `앱 열기: 화면 8개 콘솔 오류 0 · 데모 곡 '새벽 네 시' 트랙 7개 불러옴 · 재생 8/8`, `예전 프로젝트: 견본 11개 모두 그대로 (…)`(+ 견본마다 한 줄), `장르 템플릿: 10종 모두 소리 남 · 넘침 0 (가장 꽉 찬 씬 4마디)`(+ 장르마다 `하우스 (드롭): RMS -11.1 dB · 피크 -0.7 dB`)가 뜬다. 점검 한 번은 약 1분 40초(앱 열기 약 45초 · 예전 프로젝트 약 12초 · 장르 템플릿 약 30초, 렌더는 장르마다 1.4~4초). 검사 더하는 법은 `.github/check/README.md`. 크롬이 필요한 검사는 `.github/check/lib/browser.mjs`(웹 서버 · 크롬 켜기 · CDP · 앱 열기)를 쓴다.
 - **저장소: `jinnsei99/ullim`(공개), 주소: https://jinnsei99.github.io/ullim/**. `main`에 푸시하면 `.github/workflows/pages.yml`이 Pages에 올린다.
 - **작업 폴더: 이 컴퓨터 바탕화면의 `ullim` 폴더**(이 저장소의 클론). 앞으로 모든 울림 작업은 여기서 한다. 바탕화면 `jinnsei` 클론은 옛 저장소(가계부 · 옛 주소 안내)용이다.
 - 옛 주소 `/jinnsei/ullim/`은 새 주소로 넘어간다(옛 저장소 PR [jinnsei99/jinnsei#42](https://github.com/jinnsei99/jinnsei/pull/42)). 컴퓨터 · 아이패드에서 제품 책임자가 확인했다.
 - 정한 것: 디자인 규칙은 토큰이 생기는 만큼 단계적으로 엄격하게 한다(`CLAUDE.md` '디자인 규칙').
 
 ## 다음 할 일
-1. (제품 책임자) PR [#11](https://github.com/jinnsei99/ullim/pull/11)(0-15)을 보고 머지를 정한다. 머지하면 `main` 푸시 점검 · 배포가 초록인지, Annotations에 다섯 줄이 뜨는지 본다.
-2. 0-16 화면 조합 자동 촬영(0-D 시작). 크롬 부분은 `.github/check/lib/browser.mjs`를 쓸 수 있다.
-3. (작게, 아무 때나) 배포 워크플로의 액션을 Node 24용 새 버전으로 올린다. 점검 워크플로는 이미 `checkout@v7` · `setup-node@v7`(둘 다 Node 24, 2026-11-10 기준 최신)을 쓴다.
+1. 0-16 화면 조합 자동 촬영(0-D 시작). 크롬 부분은 `.github/check/lib/browser.mjs`를 쓸 수 있다.
+2. (작게, 아무 때나) 배포 워크플로의 액션을 Node 24용 새 버전으로 올린다. 점검 워크플로는 이미 `checkout@v7` · `setup-node@v7`(둘 다 Node 24, 2026-11-10 기준 최신)을 쓴다.
 
 ## 알려진 문제
-- 자동 점검은 검사가 5개(js 파일 목록 · JS 문법 · 앱 열기 · 예전 프로젝트 · 장르 템플릿)다(장르 템플릿은 PR #11 머지 전).
+- 자동 점검은 검사가 5개(js 파일 목록 · JS 문법 · 앱 열기 · 예전 프로젝트 · 장르 템플릿)다.
   - JS 문법 검사는 Node(크롬과 같은 엔진)가 읽을 수 있으면 통과시킨다. 아이패드 사파리가 아직 모르는 새 문법을 써도 초록이므로, 그런 실수는 아이패드에서 직접 열어 봐야 안다.
   - `js/engine.js` 617줄 근처에 문자열로 들어 있는 Web Worker 코드 한 줄(스케줄러 타이머)은 문법 검사가 보지 않는다(문자열이라). 대신 0-13 앱 열기가 화면마다 재생해서 스케줄러가 앞으로 가는지 본다(지금 2초에 3.9박).
   - 앱 열기 검사는 크롬에서만 연다. "아이패드 버전"은 앱 설정(`uiMode: 'touch'`)으로 고른 화면이고 진짜 사파리 · 손가락이 아니다. 클릭은 마우스로 한다. 화면마다 여는 것 · 데모 곡 · 재생 2초까지만 보고, 다른 단추 · 메뉴 · 서비스 워커 등록 · 오프라인은 보지 않는다.
@@ -41,6 +40,11 @@
 
 ## 날짜별 기록
 
+### 2026-11-11 — PR #11 머지
+- 한 일: 제품 책임자 요청으로 Claude가 PR #11(0-15)을 머지 커밋으로 합쳤다(fd48eab, 빨강 시험 · 되돌린 커밋 기록이 남도록). `ci/check-genre-templates` 브랜치는 지우지 않았다.
+- 확인: 머지 뒤 `main` 푸시의 '점검'([실행](https://github.com/jinnsei99/ullim/actions/runs/43041435169)) · '사이트 배포'([실행](https://github.com/jinnsei99/ullim/actions/runs/43041435176))가 초록이었다. 점검 Annotations에 다섯 줄이 떴고, 0-15 줄(장르별 10줄 포함)은 PR의 마지막 초록 실행([43039460079](https://github.com/jinnsei99/ullim/actions/runs/43039460079))과 글자 그대로 같았다. 실제 사이트에서 `/ullim/` · `index.html` · `js/templates.js`는 200, `.github/check/15-genre-templates.mjs`는 404였다. `.github/check/README.md`는 배포 직후 503이 한 번 나온 뒤 404였고, 내용이 나온 적은 없다.
+- 확인하지 못한 것: 앱은 사이트에서 직접 열어 재생해 보지 않았다(앱 파일은 바뀌지 않았고, `main` 점검이 헤드리스 크롬으로 열고 재생 · 렌더했다).
+
 ### 2026-11-11 — 점검 5 장르 템플릿 (0-15, PR #11)
 - 한 일: `main`(202eb89)에서 `ci/check-genre-templates` 브랜치를 만들고 `.github/check/15-genre-templates.mjs`(136줄)를 더했다(PR [#11](https://github.com/jinnsei99/ullim/pull/11), 받는 쪽은 `main`).
   - `lib/browser.mjs`로 앱을 헤드리스 크롬에서 한 번 연다(14와 같은 모양). 장르(`U.GENRES`)마다 페이지 안에서 `U.genreProject(id)` → 클립이 가장 많은 씬 → `U.renderOffline(p, {from: 0, to: 4마디, scene, sampleRate: 44100, tail: 2})`(내보내기 창 '세션 씬 하나 · 4마디'와 같은 길) → 4마디 RMS와 끝 여운까지의 피크를 잰다.
@@ -54,8 +58,8 @@
   - 빨강: `js/templates.js` `genreProject()`에 `if (g.id === 'lofi') t.on = false;` 한 줄(로파이 템플릿의 트랙을 모두 끔)을 넣은 시험 커밋 [실행](https://github.com/jinnsei99/ullim/actions/runs/43039160086). `장르 템플릿: 문제 1개 (10종 중 통과 9종)` · `로파이 힙합 (메인): 무음 (RMS -∞ dB, 기준 -60 dB 아래)`. 나머지 9종과 11~14는 초록이었다(14의 로파이 견본은 얼려 둔 파일이라 그대로).
   - 되돌림: `git revert`("This reverts commit …" 줄 남김) 뒤 다시 초록 [실행](https://github.com/jinnsei99/ullim/actions/runs/43039460079). `git diff origin/main -- js/`가 비어 있다.
 - 앱에서 찾은 문제: 없다. 10종 모두 소리가 나고, 넘침 · NaN 0, 렌더 중 콘솔 오류 0이었다.
-- 확인하지 못한 것: 넘침 · NaN · 콘솔 오류로 빨강이 되는 것과 ±3 dB 경고가 뜨는 것(위 알려진 문제). Summary 칸의 표는 로그인해야 보여서 보지 못했다(Annotations · 로그의 장르별 줄로 대신 확인). `main` 푸시 점검(머지 뒤 처음 돈다). 이 컴퓨터에는 Node가 없어 검사는 Actions에서만 돌렸다(페이지 안에서 도는 `probe` 함수는 앱 안 브라우저에서 파일 글자 그대로 먼저 시험했다). 렌더한 소리를 귀로 듣지는 않았다.
-- 인수인계: 다음 세션은 '다음 할 일' 1(PR #11 머지 확인) → 2(0-16)다. 템플릿 소리를 일부러 바꾸면 점검이 노란 경고를 띄운다. 들어 보고 괜찮으면 `15-genre-templates.mjs` 맨 위 `REF_RMS`를 결과에 나온 새 값으로 고친다. 새 장르를 더하면 기준표에 한 줄을 더한다(안 더하면 경고). 0-D 촬영도 `lib/browser.mjs`의 `newPage` · `openApp`으로 화면을 열 수 있다(스크린샷은 CDP `Page.captureScreenshot`).
+- 확인하지 못한 것: 넘침 · NaN · 콘솔 오류로 빨강이 되는 것과 ±3 dB 경고가 뜨는 것(위 알려진 문제). Summary 칸의 표는 로그인해야 보여서 보지 못했다(Annotations · 로그의 장르별 줄로 대신 확인). `main` 푸시 점검(→ 위 머지 기록에서 확인함). 이 컴퓨터에는 Node가 없어 검사는 Actions에서만 돌렸다(페이지 안에서 도는 `probe` 함수는 앱 안 브라우저에서 파일 글자 그대로 먼저 시험했다). 렌더한 소리를 귀로 듣지는 않았다.
+- 인수인계: 다음 세션은 '다음 할 일' 1(0-16)이다(PR #11은 위 기록대로 머지함). 템플릿 소리를 일부러 바꾸면 점검이 노란 경고를 띄운다. 들어 보고 괜찮으면 `15-genre-templates.mjs` 맨 위 `REF_RMS`를 결과에 나온 새 값으로 고친다. 새 장르를 더하면 기준표에 한 줄을 더한다(안 더하면 경고). 0-D 촬영도 `lib/browser.mjs`의 `newPage` · `openApp`으로 화면을 열 수 있다(스크린샷은 CDP `Page.captureScreenshot`).
 
 ### 2026-11-11 — PR #9 머지
 - 한 일: 제품 책임자 요청으로 Claude가 PR #9(0-15 준비)를 머지 커밋으로 합쳤다(9f33134, 빨강 시험 · 되돌린 커밋 기록이 남도록). `ci/check-lib` 브랜치는 지우지 않았다.

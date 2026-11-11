@@ -371,7 +371,7 @@ const PADS8 = [0, 1, 2, 3, 4, 5, 6, 7].map(i => ({ p: 36 + i, s: i * 0.5, d: 0.4
 const pc5 = (r, s, d, v) => [0, 7, 12].map(x => ({ p: r + x, s, d, v: v || 104 }));
 const POWER = [0, 0.5, 1, 1.5].flatMap(s => pc5(40, s, 0.42, s % 1 ? 92 : 112)).concat(pc5(43, 2, 0.9), pc5(45, 3, 0.9));
 const PALM = [0, 1, 2, 3, 4, 5, 6, 7].flatMap(i => [40, 47].map(p => ({ p, s: i * 0.25, d: 0.2, v: i % 4 ? 92 : 118 }))).concat(pc5(43, 2, 0.9, 112));
-const NO_PREVIEW_FX = ['duck', 'spectrum'];
+const NO_PREVIEW_FX = ['pump', 'spectrum'];
 /* s: 사운드 프리셋 — 딸린 이펙트까지 거쳐 들려주고, 앞의 Chord(파워 코드 등)도 흉내 낸다 */
 function previewDev(dev, tag, s) {
   let notes = tag === 'drums' ? BEAT : tag === 'loopkit' ? PADS8 : tag === '베이스' ? BASS : tag === '리드' || tag === '플럭' ? LEAD : tag === '보컬' ? [{ p: 57, s: 0, d: 1.5 }] : CHORD;

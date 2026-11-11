@@ -98,7 +98,7 @@ function melody(key, list, len, base) {
 const riser = { audio: 'gen:fx-riser', name: '라이저', align: 'end' };
 const impact = { audio: 'gen:fx-impact', name: '임팩트' };
 const vinyl = { audio: 'gen:tex-vinyl', name: '바이닐 노이즈' };
-const duck = depth => ['duck', { div: '1/4', depth, rel: 0.18 }];
+const duck = depth => ['pump', { div: '1/4', depth, rel: 0.18 }];
 const glue = ['comp', { thr: -16, ratio: 3, att: 0.02, rel: 0.15, makeup: 2 }];
 
 /* ================= 장르 ================= */

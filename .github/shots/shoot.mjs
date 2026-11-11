@@ -6,13 +6,15 @@
 // 매번 똑같이 찍히게(0-18 전후 비교용):
 //   어두운 화면(prefers-color-scheme: dark)으로 고정 · '움직임 줄이기'(prefers-reduced-motion)로 앱 CSS의 애니메이션 · 전환을 끔 ·
 //   재생하지 않음(재생 위치 맨 앞, 소리 막대 0) · 오디오가 켜진 뒤(상태 줄 '소리 켜기' 단추가 사라진 뒤) · 글꼴 4종과
-//   화면에 쓰인 글꼴 조각을 다 불러온 뒤 · 창 · 알림 말풍선이 없을 때 · 매 프레임 그리기를 멈추고 글자 커서를 숨긴 뒤에 찍는다.
+//   화면에 쓰인 글꼴 조각을 다 불러온 뒤 한 번 다시 그리고 · 창 · 알림 말풍선이 없을 때 · 매 프레임 그리기를 멈추고 글자 커서를
+//   숨긴 뒤에 찍는다. 크롬은 그림을 매번 똑같이 그리는 옵션(CHROME_FLAGS)으로 켠다.
 //   화면마다 빈 저장 공간에서 두 번 따로 열어 찍고, 두 그림이 파일까지 같아야 한다.
 // 빨강: 두 그림이 다름 · 글꼴을 다 못 불러옴 · 데모 곡이 아님 · 창이 남음 · 바라던 화면이 아님 · 콘솔 오류 · 크롬 없음 · 시간 초과.
 // 빨강이어도 찍은 그림은 올린다(두 그림이 다르면 두 번째 그림도 `-2nd.png`로 함께).
 import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
+import { inflateSync } from 'node:zlib';
 import { BASE, connect, launchChrome, newPage, openApp, sleep, startServer, stop } from '../check/lib/browser.mjs';
 
 const OUT = '_shots';   // 저장소 맨 위 기준. 워크플로가 이 폴더를 올린다(커밋하지 않는다)
@@ -20,6 +22,9 @@ const SETTLE_MS = 1500, STEADY_MS = 15000, ALL_MS = 300000;
 const PREFS = { welcomed: true, designIntro: true };   // 시작 창 · 디자인 안내를 건너뛴다(0-13과 같음)
 const FONTS = ['Black Han Sans', 'IBM Plex Mono', 'IBM Plex Sans Condensed', 'IBM Plex Sans KR'];   // index.html이 구글 글꼴에서 받는 4종
 const MEDIA = [{ name: 'prefers-color-scheme', value: 'dark' }, { name: 'prefers-reduced-motion', value: 'reduce' }];
+// 크롬이 그림을 매번 똑같이 그리게: 그래픽 처리를 한 갈래 소프트웨어로(둥근 모서리 색이 1씩 흔들렸다) · CPU마다 다른 빠른 계산을 끔 ·
+// 색 공간 고정 · 일부만 다시 그리기 끔
+const CHROME_FLAGS = ['--disable-gpu', '--disable-skia-runtime-opts', '--force-color-profile=srgb', '--disable-partial-raster'];
 const SHOTS = [
   { file: '01-A-computer-1440x900.png', name: '디자인 A · 컴퓨터 버전', w: 1440, h: 900, prefs: { design: 'a', uiMode: 'desktop' } },
   { file: '02-B-computer-1440x900.png', name: '디자인 B · 컴퓨터 버전', w: 1440, h: 900, prefs: { design: 'b', uiMode: 'desktop' } },
@@ -45,6 +50,9 @@ const STATE = `(async () => {
     song: U.project.name, tracks: U.project.tracks.length, demoName: d.name, demoTracks: d.tracks.length,
     design: document.body.dataset.design, touch: document.documentElement.classList.contains('touch'), narrow: document.body.classList.contains('narrow') };
 })()`;
+// 글꼴이 다 온 뒤 앱을 한 번 다시 그린다. 캔버스(파형 눈금 등)는 처음 그릴 때 글꼴이 아직 없으면 대신 글꼴로 그리고
+// 글꼴이 와도 다시 그리지 않아서, 실행마다 글꼴이 다르게 찍혔다. 칸 다시 그리기 + 창 크기 바뀜 알림(패드 편집기 등이 듣는다)
+const REDRAW = `(() => { U.inval('all'); window.dispatchEvent(new Event('resize')); return true; })()`;
 // 찍기 직전: 매 프레임 그리기(미터 · 재생 위치 · 깜빡임, js/ui-core.js loop)를 멈추고, 포커스를 풀고, 글자 커서를 숨긴다
 const FREEZE = `(() => {
   window.requestAnimationFrame = () => 0;
@@ -67,16 +75,22 @@ async function shootOnce(send, s, n) {
       ready: `window.U && U.project && U.engine && document.querySelector('.tr.play')` });
     await sleep(SETTLE_MS);
 
-    // 가만해질 때까지: 오디오 켜짐 · 글꼴 다 불러옴(조각 수가 두 번 연속 같음) · 창 · 알림 없음
+    // 가만해질 때까지: 오디오 켜짐 · 글꼴 다 불러옴(조각 수가 두 번 연속 같음) · 창 · 알림 없음.
+    // 가만해지면 한 번 다시 그리고(REDRAW), 다시 그리느라 새 글꼴 조각이 필요했을 수 있으니 한 번 더 기다린다
     const want = { design: s.prefs.design, touch: s.prefs.uiMode === 'touch', narrow: s.w < (s.prefs.uiMode === 'desktop' ? 600 : 860) };
     const until = Date.now() + STEADY_MS;
-    let lastFaces = -1, steady = false;
-    while (!steady && Date.now() < until) {
-      st = await run(STATE);
-      steady = st.audio === 'running' && st.fontStatus === 'loaded' && !st.missing.length && !st.dialog && !st.toast && st.faces === lastFaces;
-      lastFaces = st.faces;
-      if (st.dialog) for (const type of ['keyDown', 'keyUp']) await send('Input.dispatchKeyEvent', { type, key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 }, sid);
-      if (!steady) await sleep(300);
+    let steady = false;
+    for (const round of [1, 2]) {
+      let lastFaces = -1;
+      steady = false;
+      while (!steady && Date.now() < until) {
+        st = await run(STATE);
+        steady = st.audio === 'running' && st.fontStatus === 'loaded' && !st.missing.length && !st.dialog && !st.toast && st.faces === lastFaces;
+        lastFaces = st.faces;
+        if (st.dialog) for (const type of ['keyDown', 'keyUp']) await send('Input.dispatchKeyEvent', { type, key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 }, sid);
+        if (!steady) await sleep(300);
+      }
+      if (round === 1 && steady) { await run(REDRAW); await sleep(600); }   // 창 크기 알림을 0.2초 늦게 받는 곳(ui-shell.js)까지
     }
     if (st.design !== want.design || st.touch !== want.touch || st.narrow !== want.narrow)
       rec.errors.push(`바라던 화면으로 열리지 않았다 (바란 것 ${JSON.stringify(want)} · 열린 것 ${JSON.stringify({ design: st.design, touch: st.touch, narrow: st.narrow })})`);
@@ -105,9 +119,54 @@ async function shoot(send, s) {
   const same = !!b.png && a.png.equals(b.png);
   if (b.png && !same) {
     writeFileSync(join(OUT, s.file.replace('.png', '-2nd.png')), b.png);
-    problems.push(`${s.name}: 두 번 찍은 그림이 다르다 (${hash(a.png)} · ${hash(b.png)})`);
+    let how = '';
+    try { how = ` · ${pixelDiff(a.png, b.png)}`; } catch (err) { how = ` · 점 비교 못 함 (${err.message})`; }
+    problems.push(`${s.name}: 두 번 찍은 그림이 다르다 (${hash(a.png)} · ${hash(b.png)}${how})`);
   }
   rows.push({ file: s.file, name: s.name, hash: hash(a.png), kb: Math.round(a.png.length / 1024), same, faces: a.faces });
+}
+
+// 두 그림이 다를 때 어디가 얼마나 다른지: PNG를 풀어(크롬이 만든 8비트 RGB · RGBA만) 점마다 비교한다
+function decodePng(buf) {
+  let i = 8, w = 0, h = 0, bpp = 0;
+  const idat = [];
+  while (i < buf.length) {
+    const n = buf.readUInt32BE(i), type = buf.toString('latin1', i + 4, i + 8), c = buf.subarray(i + 8, i + 8 + n);
+    if (type === 'IHDR') {
+      w = c.readUInt32BE(0); h = c.readUInt32BE(4);
+      bpp = { 2: 3, 6: 4 }[c[9]];
+      if (c[8] !== 8 || !bpp) throw new Error('모르는 PNG 형식');
+    } else if (type === 'IDAT') idat.push(c);
+    i += 12 + n;
+  }
+  const raw = inflateSync(Buffer.concat(idat)), stride = w * bpp, rows = [];
+  let prev = Buffer.alloc(stride);
+  for (let y = 0, p = 0; y < h; y++, p += stride + 1) {
+    const f = raw[p], line = Buffer.from(raw.subarray(p + 1, p + 1 + stride));
+    for (let x = 0; x < stride; x++) {
+      const a = x >= bpp ? line[x - bpp] : 0, b = prev[x], c = x >= bpp ? prev[x - bpp] : 0;
+      const pa = Math.abs(b - c), pb = Math.abs(a - c), pc = Math.abs(a + b - 2 * c);
+      line[x] = (line[x] + [0, a, b, (a + b) >> 1, pa <= pb && pa <= pc ? a : pb <= pc ? b : c][f]) & 255;
+    }
+    rows.push(line); prev = line;
+  }
+  return { w, h, bpp, rows };
+}
+function pixelDiff(p1, p2) {
+  const A = decodePng(p1), B = decodePng(p2);
+  if (A.w !== B.w || A.h !== B.h) return `크기가 다름 ${A.w}×${A.h} · ${B.w}×${B.h}`;
+  let n = 0, max = 0, x0 = Infinity, y0 = Infinity, x1 = -1, y1 = -1;
+  for (let y = 0; y < A.h; y++) {
+    if (A.rows[y].equals(B.rows[y])) continue;
+    for (let x = 0; x < A.w; x++) {
+      let d = 0;
+      for (let k = 0; k < 3; k++) d = Math.max(d, Math.abs(A.rows[y][x * A.bpp + k] - B.rows[y][x * B.bpp + k]));
+      if (!d) continue;
+      n++; max = Math.max(max, d);
+      x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y);
+    }
+  }
+  return n ? `점 ${n}개 다름 · 색 차이 최대 ${max} · 영역 (${x0},${y0})–(${x1},${y1})` : '점은 모두 같음(파일만 다름)';
 }
 
 // ---------- 3. 결과: 로그 · Annotations(로그인 없이 보임) · Summary · _shots/fingerprints.txt ----------
@@ -149,7 +208,7 @@ setTimeout(() => { problems.push(`촬영이 ${ALL_MS / 1000}초 안에 끝나지
 try {
   mkdirSync(OUT, { recursive: true });
   const origin = await startServer();
-  const c = await launchChrome();
+  const c = await launchChrome(CHROME_FLAGS);
   if (!c) throw new Error('크롬을 찾지 못했다 (google-chrome · chromium. CHROME_PATH로 정할 수 있다)');
   const send = await connect(c.url, warnings);
   chromeVer = (await send('Browser.getVersion')).product.replace('HeadlessChrome/', '크롬 ');

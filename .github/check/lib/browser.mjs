@@ -1,4 +1,4 @@
-// 점검이 함께 쓰는 크롬 부분: 웹 서버 · 크롬 켜기 · CDP. 지금 쓰는 검사는 13-app-open.mjs · 14-old-projects.mjs.
+// 점검이 함께 쓰는 크롬 부분: 웹 서버 · 크롬 켜기 · CDP. 지금 쓰는 곳은 13 · 14 · 15 검사와 화면 촬영(../../shots/shoot.mjs).
 // 이 파일은 검사가 아니다(run.mjs는 `숫자-이름.mjs`만 돌린다). 검사 파일에서 `import … from './lib/browser.mjs'`로 쓴다.
 // 저장소 파일을 작은 웹 서버로 실제 사이트와 같은 /ullim/ 주소 아래에 띄우고, Actions에 깔려 있는 구글 크롬을
 // 화면 없이(헤드리스) 켠다. 크롬은 개발자 도구 통로(CDP)로 직접 움직인다. Node 24 기본 기능(WebSocket)만 쓰므로 설치할 것이 없다.
@@ -50,10 +50,11 @@ export async function startServer() {
 }
 
 // ---------- 2. 크롬 켜기: 개발자 도구 주소(ws://…)를 받을 때까지. 못 찾으면 null ----------
-export async function launchChrome() {
+// extra: 더 넘길 크롬 옵션(화면 촬영이 쓴다. 점검은 넘기지 않는다)
+export async function launchChrome(extra = []) {
   profile = mkdtempSync(join(tmpdir(), 'ullim-chrome-'));
   const args = ['--headless=new', '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--no-first-run',
-    '--no-default-browser-check', '--no-sandbox', '--autoplay-policy=no-user-gesture-required', 'about:blank'];
+    '--no-default-browser-check', '--no-sandbox', '--autoplay-policy=no-user-gesture-required', ...extra, 'about:blank'];
   const bins = [process.env.CHROME_PATH, 'google-chrome', 'google-chrome-stable', 'chromium', 'chromium-browser'].filter(Boolean);
   for (const bin of bins) {
     const url = await new Promise(done => {

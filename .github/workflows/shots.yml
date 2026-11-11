@@ -42,9 +42,12 @@ jobs:
           base=$(git merge-base "${BASE_SHA:-origin/main}" "$SHOT_SHA")
           echo "sha=$base" >> "$GITHUB_OUTPUT"
           echo "전: $base · 후: $SHOT_SHA"
-          if [ "$base" != "$SHOT_SHA" ]; then git worktree add --detach "$RUNNER_TEMP/before" "$base"; fi
+          if [ "$base" != "$SHOT_SHA" ]; then
+            git worktree add --detach "$RUNNER_TEMP/before" "$base"
+            echo "shoot=yes" >> "$GITHUB_OUTPUT"
+          fi
       - name: 전 — 같은 화면 14장 찍기 (이 PR의 촬영 코드로)
-        if: always() && steps.base.outputs.sha != '' && steps.base.outputs.sha != env.SHOT_SHA
+        if: always() && steps.base.outputs.shoot == 'yes'   # 전과 후가 같은 커밋(main을 손으로 실행)이면 찍지 않는다
         continue-on-error: true   # 전(main 쪽)이 못 찍혀도 이 PR 탓이 아니다. 비교는 찍힌 그림끼리만
         working-directory: ${{ runner.temp }}/before
         run: node "$GITHUB_WORKSPACE/.github/shots/shoot.mjs"

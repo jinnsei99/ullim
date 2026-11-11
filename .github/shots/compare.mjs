@@ -87,9 +87,10 @@ function triptych(A, B, { mask, areas }) {
 }
 
 const rows = [], notes = [];
+const sameCommit = !!BASE && BASE === HEAD;
 try {
   const before = pngs(BEFORE), after = pngs(AFTER);
-  if (BASE && BASE === HEAD) notes.push(`전과 후가 같은 커밋(${short(HEAD)})이라 비교하지 않았다`);
+  if (sameCommit) notes.push(`전과 후가 같은 커밋(${short(HEAD)})이라 비교하지 않았다`);
   else if (!before.length) notes.push(`전 그림이 없다 (${BEFORE}/). 전 촬영 단계를 본다`);
   else {
     mkdirSync(OUT, { recursive: true });

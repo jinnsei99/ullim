@@ -1,18 +1,20 @@
 # 울림 스튜디오 — 진행 기록
 
 ## 현재 상태 (2026-11-12)
-- 기능 폭은 넓다(README). 지금은 기능을 더하지 않고 기반을 다지는 중이다: [ROADMAP](ROADMAP.md) 단계 0. 0-A 문서와 0-B 저장소 분리는 끝났고, 0-C 자동 점검은 틀(0-10, PR [#1](https://github.com/jinnsei99/ullim/pull/1))과 점검 1 파일 목록(0-11, PR [#2](https://github.com/jinnsei99/ullim/pull/2)), 점검 2 JS 문법(0-12, PR [#4](https://github.com/jinnsei99/ullim/pull/4)), 점검 3 앱 열기(0-13, PR [#5](https://github.com/jinnsei99/ullim/pull/5)), 점검 4 예전 프로젝트 열기(0-14, PR [#7](https://github.com/jinnsei99/ullim/pull/7))까지 `main`에 머지됐고 `main` 푸시 점검 · 배포가 초록이다. 0-15 준비로 13 · 14의 크롬 부분을 `.github/check/lib/browser.mjs`로 모았다(PR [#9](https://github.com/jinnsei99/ullim/pull/9), 머지됨). 점검 5 장르 템플릿(0-15, PR [#11](https://github.com/jinnsei99/ullim/pull/11))도 머지됐다(`main` 푸시 점검 · 배포 초록). 이것으로 0-C 자동 점검 다섯 개가 다 만들어졌다. 배포 워크플로의 액션도 Node 24용으로 올렸다(PR [#13](https://github.com/jinnsei99/ullim/pull/13), 머지됨, Node 20 경고 없음). 0-D는 0-16 화면 조합 자동 촬영(PR [#15](https://github.com/jinnsei99/ullim/pull/15), 머지됨)으로 시작했고, 0-17 밝은 화면 촬영(PR [#17](https://github.com/jinnsei99/ullim/pull/17))과 그 위에 쌓은 0-18 전후 비교(PR [#18](https://github.com/jinnsei99/ullim/pull/18))는 머지를 기다린다.
-- **화면 촬영: PR마다 · 손으로 실행할 때 Actions의 '화면 촬영'이 14장(어두운 7 · 밝은 7)을 찍는다.** (PR #17이 머지되기 전 `main`은 어두운 7장만.) 받는 곳: 저장소 → Actions → 화면 촬영 → 실행 하나 → 아래 Artifacts의 `screens-커밋-시도`(zip, 로그인 필요). 그림은 `01-A-computer-1440x900-dark.png` … `07-narrow-390x844-dark.png`, 같은 이름의 `-light.png` 7장, 지문 목록 `fingerprints.txt`. 실행 화면 Annotations 칸에 `화면 촬영: 14장 (어두움 7 · 밝음 7) · 화면마다 두 번 찍어 모두 같음 · 글꼴 4종 불러옴 · 크롬 156.0.8078.79`와 그림마다 지문이 뜬다. 찍는 단계는 약 2분 20초. 찍는 법은 `.github/shots/shoot.mjs` 맨 위와 ARCHITECTURE '화면 촬영'.
-- **전후 비교(PR #18이 머지되면): 같은 '화면 촬영' 실행이 main과 갈라진 지점의 14장도 찍어 대 본다.** Annotations에 `전후 비교: 14장 중 달라진 그림 n장 (전 커밋 → 후 커밋)`과 그림마다 `02-B-computer-1440x900-dark.png · 달라짐 · 점 2,431개 (0.19%) · 색 차이 최대 160 · 영역 1곳 (234,798)–(291,849) 58×52`처럼 뜬다. 같은 zip의 `before/`에 전 14장, `compare/`에 달라진 그림마다 `전 | 후 | 차이` 세 칸 그림과 `changes.txt`. 달라져도 빨강이 아니다. 실행은 약 5분 30초(찍기가 두 번). 비교하는 법은 `.github/shots/compare.mjs` 맨 위.
+- 기능 폭은 넓다(README). 지금은 기능을 더하지 않고 기반을 다지는 중이다: [ROADMAP](ROADMAP.md) 단계 0. 0-A 문서와 0-B 저장소 분리는 끝났고, 0-C 자동 점검은 틀(0-10, PR [#1](https://github.com/jinnsei99/ullim/pull/1))과 점검 1 파일 목록(0-11, PR [#2](https://github.com/jinnsei99/ullim/pull/2)), 점검 2 JS 문법(0-12, PR [#4](https://github.com/jinnsei99/ullim/pull/4)), 점검 3 앱 열기(0-13, PR [#5](https://github.com/jinnsei99/ullim/pull/5)), 점검 4 예전 프로젝트 열기(0-14, PR [#7](https://github.com/jinnsei99/ullim/pull/7))까지 `main`에 머지됐고 `main` 푸시 점검 · 배포가 초록이다. 0-15 준비로 13 · 14의 크롬 부분을 `.github/check/lib/browser.mjs`로 모았다(PR [#9](https://github.com/jinnsei99/ullim/pull/9), 머지됨). 점검 5 장르 템플릿(0-15, PR [#11](https://github.com/jinnsei99/ullim/pull/11))도 머지됐다(`main` 푸시 점검 · 배포 초록). 이것으로 0-C 자동 점검 다섯 개가 다 만들어졌다. 배포 워크플로의 액션도 Node 24용으로 올렸다(PR [#13](https://github.com/jinnsei99/ullim/pull/13), 머지됨, Node 20 경고 없음). 0-D는 0-16 화면 조합 자동 촬영(PR [#15](https://github.com/jinnsei99/ullim/pull/15)), 0-17 밝은 화면 촬영(PR [#17](https://github.com/jinnsei99/ullim/pull/17)), 0-18 전후 비교(PR [#18](https://github.com/jinnsei99/ullim/pull/18))까지 모두 머지됐다(`main` 8d56812 점검 · 배포 초록). 이것으로 0-D가 끝났다.
+- **화면 촬영: PR마다 · 손으로 실행할 때 Actions의 '화면 촬영'이 14장(어두운 7 · 밝은 7)을 찍는다.** 받는 곳: 저장소 → Actions → 화면 촬영 → 실행 하나 → 아래 Artifacts의 `screens-커밋-시도`(zip, 로그인 필요). 그림은 `01-A-computer-1440x900-dark.png` … `07-narrow-390x844-dark.png`, 같은 이름의 `-light.png` 7장, 지문 목록 `fingerprints.txt`. 실행 화면 Annotations 칸에 `화면 촬영: 14장 (어두움 7 · 밝음 7) · 화면마다 두 번 찍어 모두 같음 · 글꼴 4종 불러옴 · 크롬 156.0.8078.79`와 그림마다 지문이 뜬다. 찍는 단계는 약 2분 20초. 찍는 법은 `.github/shots/shoot.mjs` 맨 위와 ARCHITECTURE '화면 촬영'.
+- **전후 비교: 같은 '화면 촬영' 실행이 main과 갈라진 지점의 14장도 찍어 대 본다.** Annotations에 `전후 비교: 14장 중 달라진 그림 n장 (전 커밋 → 후 커밋)`과 그림마다 `02-B-computer-1440x900-dark.png · 달라짐 · 점 2,431개 (0.19%) · 색 차이 최대 160 · 영역 1곳 (234,798)–(291,849) 58×52`처럼 뜬다. 같은 zip의 `before/`에 전 14장, `compare/`에 달라진 그림마다 `전 | 후 | 차이` 세 칸 그림과 `changes.txt`. 달라져도 빨강이 아니다. 실행은 약 5분 30초(찍기가 두 번). 비교하는 법은 `.github/shots/compare.mjs` 맨 위.
 - **점검: `main` 푸시 · PR마다 Actions의 '점검'이 `node .github/check/run.mjs`를 돌린다.** 검사는 5개(`11-file-list.mjs` · `12-js-syntax.mjs` · `13-app-open.mjs` · `14-old-projects.mjs` · `15-genre-templates.mjs`)이고, 초록이면 실행 화면 Annotations 칸에 `파일 목록: js 43개 일치 (…)`, `JS 문법: 44개 파일 오류 0 (js/ 43 · sw.js 1)`, `앱 열기: 화면 8개 콘솔 오류 0 · 데모 곡 '새벽 네 시' 트랙 7개 불러옴 · 재생 8/8`, `예전 프로젝트: 견본 11개 모두 그대로 (…)`(+ 견본마다 한 줄), `장르 템플릿: 10종 모두 소리 남 · 넘침 0 (가장 꽉 찬 씬 4마디)`(+ 장르마다 `하우스 (드롭): RMS -11.1 dB · 피크 -0.7 dB`)가 뜬다. 점검 한 번은 약 1분 40초(앱 열기 약 45초 · 예전 프로젝트 약 12초 · 장르 템플릿 약 30초, 렌더는 장르마다 1.4~4초). 검사 더하는 법은 `.github/check/README.md`. 크롬이 필요한 검사는 `.github/check/lib/browser.mjs`(웹 서버 · 크롬 켜기 · CDP · 앱 열기)를 쓴다.
-- **저장소: `jinnsei99/ullim`(공개), 주소: https://jinnsei99.github.io/ullim/**. `main`에 푸시하면 `.github/workflows/pages.yml`이 Pages에 올린다.
+- **저장소: `jinnsei99/ullim`(공개), 주소: https://jinnsei99.github.io/ullim/**. `main`에 들어가면 `.github/workflows/pages.yml`이 Pages에 올린다.
+- **`main` 보호 규칙(2026-11-12 확인): '점검' 초록이어야 머지, `main` 직접 푸시 · 강제 푸시 · 삭제 불가(관리자도).** 'main 최신 위여야 머지'(strict)는 꺼짐, 화면 촬영은 필수 아님. 그래서 문서만 고쳐도 PR로 간다.
+- 지난 기록: 일주일 넘은 날짜별 기록은 [HISTORY](HISTORY.md)로 옮긴다(아직 0개).
 - **작업 폴더: 이 컴퓨터 바탕화면의 `ullim` 폴더**(이 저장소의 클론). 앞으로 모든 울림 작업은 여기서 한다. 바탕화면 `jinnsei` 클론은 옛 저장소(가계부 · 옛 주소 안내)용이다.
 - 옛 주소 `/jinnsei/ullim/`은 새 주소로 넘어간다(옛 저장소 PR [jinnsei99/jinnsei#42](https://github.com/jinnsei99/jinnsei/pull/42)). 컴퓨터 · 아이패드에서 제품 책임자가 확인했다.
 - 정한 것: 디자인 규칙은 토큰이 생기는 만큼 단계적으로 엄격하게 한다(`CLAUDE.md` '디자인 규칙').
 
 ## 다음 할 일
-1. (제품 책임자) PR #17(0-17)을 먼저, 그다음 PR #18(0-18)을 보고 머지한다. #18은 #17 위에 쌓았으므로 #17을 먼저 머지하면 #18에는 0-18 변경만 남는다. 머지한 뒤 `main` 푸시 점검 · 배포가 초록인지, `main`에서 '화면 촬영'을 손으로 돌려 지문 14개가 PR과 같은지 본다(`main` 손 실행은 전과 후가 같은 커밋이라 전 촬영을 건너뛰고 "같은 커밋이라 비교하지 않았다"가 뜬다).
-2. 0-19 `U` 이름 지도 자동 생성.
+1. 0-19 `U` 이름 지도 자동 생성.
+2. (아직 안 함, 급하지 않음) `main`에서 '화면 촬영'을 손으로 돌려 지문 14개가 PR #17 · #18 때와 같은지 본다. `main` 손 실행은 전과 후가 같은 커밋이라 전 촬영을 건너뛰고 "같은 커밋이라 비교하지 않았다"가 떠야 한다.
 
 ## 알려진 문제
 - 자동 점검은 검사가 5개(js 파일 목록 · JS 문법 · 앱 열기 · 예전 프로젝트 · 장르 템플릿)다.
@@ -57,6 +59,13 @@
 ---
 
 ## 날짜별 기록
+최근 일주일 것만 둔다. 그보다 오래된 것은 [HISTORY](HISTORY.md)로 옮긴다.
+
+### 2026-11-12 — PR #17 · #18 머지
+- 한 일: 제품 책임자 요청으로 Claude가 PR #17(0-17)을 먼저, PR #18(0-18)을 그다음에 머지 커밋으로 합쳤다(d60260c · 8d56812, 2026-11-11 18:12 · 18:13 UTC). 브랜치는 지우지 않았다.
+- 확인: 8d56812의 `main` 푸시 '점검'([43075625633](https://github.com/jinnsei99/ullim/actions/runs/43075625633)) · '사이트 배포'([43075625575](https://github.com/jinnsei99/ullim/actions/runs/43075625575))가 초록이다. d60260c는 '사이트 배포'만 초록이고 '점검'([43075550487](https://github.com/jinnsei99/ullim/actions/runs/43075550487))은 취소됐다. 30초 뒤 8d56812 푸시가 들어오자 같은 브랜치의 앞 실행을 끄는 설정(`check.yml`의 `cancel-in-progress`)이 끈 것이다. 그래서 `main`의 점검 초록은 8d56812 기준이다.
+- 그 뒤 `main` 보호 규칙이 켜졌다(위 현재 상태). GitHub API로 필수 점검 '점검' 하나 · 관리자 포함 · 강제 푸시 · 삭제 불가 · strict 꺼짐을 확인했다.
+- 확인하지 못한 것: `main`에서 '화면 촬영' 손 실행(다음 할 일 2).
 
 ### 2026-11-12 — 화면 전후 비교 (0-18, PR #18)
 - 한 일: `ci/screenshots-light`(PR #17, 아직 머지 전) 위에 `ci/screens-compare` 브랜치를 만들어 PR [#18](https://github.com/jinnsei99/ullim/pull/18)(대상 `main`)을 열었다. `.github/shots/compare.mjs`(새로, 전후 비교)와 `.github/shots/png.mjs`(새로, PNG 풀기 · 만들기. 풀기는 `shoot.mjs`에서 옮김)를 더하고, `shoot.mjs`는 저장 폴더(`SHOT_OUT`) · 결과 제목 표시(`SHOT_LABEL`)를 밖에서 정하게만 고쳤다(찍는 법은 그대로). `shots.yml`은 후 찍기 → 전 정하기 → 전 찍기 → 비교로 나눴다. 앱 파일 · `sw.js` · 점검 · `lib/browser.mjs`는 고치지 않았다(시험 커밋과 그 되돌림 말고는).

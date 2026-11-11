@@ -1,130 +1,23 @@
 // 점검 4 (ROADMAP 0-14): 예전 프로젝트 열기.
 // `.github/check/projects/날짜/`에 얼려 둔 견본 `.ullim.json`(그날 형식으로 앱이 저장한 파일)을 지금 앱으로 열어 본다.
 // 앱은 0-13과 같은 방식으로 띄운다: 작은 웹 서버(/ullim/ 주소) + Actions에 깔린 구글 크롬(헤드리스) + CDP 직접.
+// 그 부분은 lib/browser.mjs에 있다(13-app-open.mjs와 함께 쓴다).
 // 견본마다: 파일에 적힌 트랙 · 리턴 · 장치 · 클립 수를 센다 → `U.normalize()`를 지난 뒤 다시 센다 →
 //           앱의 '파일 열기'와 같은 길(`U.files.openFile`)로 실제로 열어 화면에 띄운 뒤 다시 센다.
 // 빨강: normalize · 파일 열기가 오류를 냄 · 연 뒤 콘솔 오류 · 수가 하나라도 달라짐(사라진 장치 종류를 적는다) ·
 //       열린 곡 이름이 다름 · 견본이 없거나 못 읽음 · 크롬을 못 찾거나 앱이 20초 안에 안 열림.
 // 견본은 한 번 넣으면 고치지 않는다. 형식이 바뀌면 새 날짜 폴더를 더한다(`projects/README.md`).
-import { spawn } from 'node:child_process';
-import { createServer } from 'node:http';
-import { appendFileSync, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { extname, join, resolve, sep } from 'node:path';
+import { appendFileSync, existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { join } from 'node:path';
+import { BASE, connect, launchChrome, newPage, openApp, sleep, startServer, stop } from './lib/browser.mjs';
 
-const BASE = '/ullim/';
 const SAMPLES = '.github/check/projects';
-const OPEN_MS = 20000, SETTLE_MS = 1500, ALL_MS = 150000;
+const SETTLE_MS = 1500, ALL_MS = 150000;
 const PREFS = { welcomed: true, designIntro: true, design: 'a', uiMode: 'desktop' };   // 시작 창 · 안내 없이
-const TYPES = {
-  '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
-  '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.svg': 'image/svg+xml',
-  '.png': 'image/png', '.mp3': 'audio/mpeg', '.txt': 'text/plain; charset=utf-8', '.md': 'text/markdown; charset=utf-8'
-};
-const sleep = ms => new Promise(r => setTimeout(r, ms));
 const problems = [], warnings = [], okLines = [];
-let chrome = null, server = null, profile = null, origin = '';
 let current = { name: '앱 열기', errors: [], urls: new Map() };   // CDP 사건(콘솔 오류 등)을 지금 여는 견본에 붙인다
 
-// ---------- 1. 웹 서버: 저장소 맨 위를 /ullim/ 아래에. .git · .github는 사이트처럼 없는 것으로 (13-app-open.mjs와 같음) ----------
-const ROOT = resolve('.');
-function serve(req, res) {
-  let path;
-  try { path = decodeURIComponent(new URL(req.url, 'http://x').pathname); } catch { path = ''; }
-  if (!path.startsWith(BASE)) { res.writeHead(path === '/' || path === '/ullim' ? 302 : 404, { Location: BASE }); return res.end(); }
-  path = path.slice(BASE.length);
-  if (!path || path.endsWith('/')) path += 'index.html';
-  const file = resolve(ROOT, path), top = path.split('/')[0];
-  if (!file.startsWith(ROOT + sep) || top === '.git' || top === '.github' || !existsSync(file) || !statSync(file).isFile()) {
-    res.writeHead(404); return res.end('없음');
-  }
-  res.writeHead(200, { 'Content-Type': TYPES[extname(file).toLowerCase()] || 'application/octet-stream', 'Cache-Control': 'no-store' });
-  res.end(readFileSync(file));
-}
-
-// ---------- 2. 크롬 켜기 (13-app-open.mjs와 같음) ----------
-async function launchChrome() {
-  profile = mkdtempSync(join(tmpdir(), 'ullim-chrome-'));
-  const args = ['--headless=new', '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--no-first-run',
-    '--no-default-browser-check', '--no-sandbox', '--autoplay-policy=no-user-gesture-required', 'about:blank'];
-  const bins = [process.env.CHROME_PATH, 'google-chrome', 'google-chrome-stable', 'chromium', 'chromium-browser'].filter(Boolean);
-  for (const bin of bins) {
-    const url = await new Promise(done => {
-      const p = spawn(bin, args, { stdio: ['ignore', 'ignore', 'pipe'] });
-      let buf = '', found = false;
-      const timer = setTimeout(() => { p.kill(); done(null); }, OPEN_MS);
-      p.on('error', () => { clearTimeout(timer); done(null); });
-      p.on('exit', () => { clearTimeout(timer); done(null); });
-      p.stderr.on('data', d => {   // 찾은 뒤에도 계속 읽어 줘야 크롬이 멈추지 않는다
-        if (found) return;
-        const m = (buf += d).match(/DevTools listening on (ws:\/\/\S+)/);
-        if (m) { found = true; clearTimeout(timer); chrome = p; done(m[1]); }
-      });
-    });
-    if (url) return { url, bin };
-  }
-  return null;
-}
-
-// ---------- 3. CDP: 명령을 보내고 답을 기다리기, 오류 사건은 지금 여는 견본에 (13-app-open.mjs를 줄임) ----------
-const pages = new Set();   // 앱 페이지와 그 페이지가 만든 워커의 CDP 세션
-function connect(url) {
-  return new Promise((ok, fail) => {
-    const ws = new WebSocket(url), wait = new Map();
-    let id = 0;
-    const send = (method, params = {}, sessionId) => new Promise((resolve, reject) => {
-      wait.set(++id, { resolve, reject, method });
-      ws.send(JSON.stringify({ id, method, params, sessionId }));
-    });
-    ws.onmessage = e => {
-      const m = JSON.parse(e.data);
-      if (m.id) {
-        const w = wait.get(m.id); wait.delete(m.id);
-        if (w) m.error ? w.reject(new Error(`${w.method}: ${m.error.message}`)) : w.resolve(m.result);
-      } else if (pages.has(m.sessionId)) onEvent(send, m);
-    };
-    ws.onopen = () => ok(send);
-    ws.onerror = () => fail(new Error('크롬 개발자 도구에 연결하지 못했다'));
-  });
-}
-const short = url => (url || '').startsWith(origin + BASE) ? url.slice((origin + BASE).length) : (url || '').startsWith('blob:') ? '문자열로 만든 워커' : url;
-function where(text, url, line) {
-  const m = String(text || '').match(/\/ullim\/([^\s():]+):(\d+):\d+/);
-  if (m) return `${m[1]} ${m[2]}번째 줄: `;
-  return url ? `${short(url)}${line != null ? ` ${line + 1}번째 줄` : ''}: ` : '';
-}
-const firstLine = s => String(s).split('\n')[0];
-function onEvent(send, { method, params: p }) {
-  const s = current;
-  if (method === 'Runtime.exceptionThrown') {
-    const d = p.exceptionDetails, ex = d.exception || {};
-    const text = ex.description || (ex.value !== undefined ? String(ex.value) : d.text);
-    s.errors.push(`잡히지 않은 오류 · ${where(text, d.url, d.lineNumber)}${firstLine(text)}`);
-  } else if (method === 'Runtime.consoleAPICalled' && (p.type === 'error' || p.type === 'assert')) {
-    const text = p.args.map(a => a.value !== undefined ? String(a.value) : a.description || a.type).join(' ');
-    const f = ((p.stackTrace || {}).callFrames || [])[0] || {};
-    s.errors.push(`콘솔 오류 · ${where(text, f.url, f.lineNumber)}${firstLine(text)}`);
-  } else if (method === 'Log.entryAdded' && p.entry.level === 'error' && p.entry.source !== 'network') {
-    s.errors.push(`브라우저 오류 · ${where('', p.entry.url, p.entry.lineNumber)}${firstLine(p.entry.text)}`);
-  } else if (method === 'Network.requestWillBeSent') {
-    s.urls.set(p.requestId, p.request.url);
-  } else if (method === 'Network.responseReceived' && p.response.status >= 400) {
-    loadFail(s, p.response.url, `${p.response.status}`);
-  } else if (method === 'Network.loadingFailed' && !p.canceled && p.errorText !== 'net::ERR_ABORTED') {
-    loadFail(s, s.urls.get(p.requestId), p.errorText);
-  } else if (method === 'Target.attachedToTarget') {   // 앱이 만든 워커도 오류를 보게
-    pages.add(p.sessionId);
-    send('Runtime.enable', {}, p.sessionId).catch(() => {});
-    send('Runtime.runIfWaitingForDebugger', {}, p.sessionId).catch(() => {});
-  }
-}
-function loadFail(s, url, why) {
-  if (!url || url.startsWith('data:') || url.startsWith('blob:')) return;
-  if (url.startsWith(origin + '/')) s.errors.push(`불러오지 못함 · ${short(url)} (${why})`);
-  else warnings.push(`${s.name}: 바깥 파일을 불러오지 못함 · ${url} (${why})`);
-}
-
-// ---------- 4. 견본 찾기: projects/날짜/*.ullim.json ----------
+// ---------- 1. 견본 찾기: projects/날짜/*.ullim.json ----------
 function findSamples() {
   if (!existsSync(SAMPLES)) return [];
   const out = [];
@@ -176,31 +69,12 @@ function diff(a, b) {
   return out;
 }
 
-// ---------- 5. 앱을 한 번 열고 견본을 차례로 ----------
+// ---------- 2. 앱을 한 번 열고 견본을 차례로 ----------
 async function run(send, samples) {
-  const { browserContextId } = await send('Target.createBrowserContext', { disposeOnDetach: true });
-  const { targetId } = await send('Target.createTarget', { url: 'about:blank', browserContextId });
-  const { sessionId: sid } = await send('Target.attachToTarget', { targetId, flatten: true });
-  pages.add(sid);
-  const evaluate = async expr => {
-    const r = await send('Runtime.evaluate', { expression: expr, returnByValue: true, awaitPromise: true }, sid);
-    if (r.exceptionDetails) throw new Error(firstLine((r.exceptionDetails.exception || {}).description || r.exceptionDetails.text));
-    return r.result.value;
-  };
-  for (const m of ['Page.enable', 'Runtime.enable', 'Log.enable', 'Network.enable']) await send(m, {}, sid);
-  await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false }, sid);
-  const json = JSON.stringify(JSON.stringify(PREFS));
-  await send('Page.addScriptToEvaluateOnNewDocument', { source: `try { localStorage.setItem('ullim:prefs:v1', ${json}); } catch (e) {}` }, sid);
-  await send('Target.setAutoAttach', { autoAttach: true, waitForDebuggerOnStart: false, flatten: true }, sid);
-  const nav = await send('Page.navigate', { url: origin + BASE }, sid);
-  if (nav.errorText) throw new Error(`주소를 열지 못했다 (${nav.errorText})`);
-  const until = Date.now() + OPEN_MS;
-  let open = false;
-  while (!open && Date.now() < until) {
-    await sleep(200);
-    open = await evaluate(`!!(window.U && U.project && U.files && U.normalize && document.querySelector('.tr.play'))`).catch(() => false);
-  }
-  if (!open) throw new Error(`앱이 ${OPEN_MS / 1000}초 안에 열리지 않았다`);
+  const page = await newPage(send, () => current);   // 사건이 날 때마다 그때 여는 견본(current)에 붙는다
+  const { evaluate } = page;
+  await openApp(send, page, { w: 1440, h: 900, prefs: PREFS,
+    ready: `window.U && U.project && U.files && U.normalize && document.querySelector('.tr.play')` });
   await sleep(SETTLE_MS);
   if (current.errors.length) for (const e of current.errors) problems.push(`앱 열기: ${e}`);
 
@@ -228,10 +102,10 @@ async function run(send, samples) {
     if (bad.length) for (const b of bad) problems.push(`${title}: ${b}`);
     else okLines.push(`${title}: 트랙 ${r.file.tracks} · 장치 ${r.file.devices} · 클립 ${r.file.clips} 그대로`);
   }
-  await send('Target.disposeBrowserContext', { browserContextId }).catch(() => {});
+  await page.close();
 }
 
-// ---------- 6. 결과: 로그 · Annotations(로그인 없이 보임) · Summary(로그인해야 보임) ----------
+// ---------- 3. 결과: 로그 · Annotations(로그인 없이 보임) · Summary(로그인해야 보임) ----------
 let total = 0;
 function report() {
   const lines = problems.length
@@ -256,9 +130,7 @@ function report() {
 }
 function finish(code) {
   try { report(); } catch (err) { console.error(err); code = 1; }
-  if (chrome) chrome.kill();
-  if (server) server.close();
-  try { if (profile) rmSync(profile, { recursive: true, force: true }); } catch { /* 크롬이 아직 쥐고 있으면 그대로 둔다 */ }
+  stop();
   process.exit(code);
 }
 
@@ -267,13 +139,11 @@ try {
   const samples = findSamples();
   total = samples.length;
   if (!samples.length) throw new Error(`견본 .ullim.json을 찾지 못했다 (${SAMPLES}/날짜/)`);
-  server = createServer(serve);
-  await new Promise(r => server.listen(0, '127.0.0.1', r));
-  origin = `http://127.0.0.1:${server.address().port}`;
+  const origin = await startServer();
   const c = await launchChrome();
   if (!c) throw new Error('크롬을 찾지 못했다 (google-chrome · chromium. CHROME_PATH로 정할 수 있다)');
   console.log(`크롬: ${c.bin} · 앱 주소: ${origin}${BASE} · 견본 ${samples.length}개`);
-  const send = await connect(c.url);
+  const send = await connect(c.url, warnings);
   await run(send, samples);
 } catch (err) {
   problems.push(err.message);

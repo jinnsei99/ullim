@@ -1,7 +1,7 @@
 # 울림 스튜디오 — 진행 기록
 
 ## 현재 상태 (2026-11-11)
-- 기능 폭은 넓다(README). 지금은 기능을 더하지 않고 기반을 다지는 중이다: [ROADMAP](ROADMAP.md) 단계 0. 0-A 문서와 0-B 저장소 분리는 끝났고, 0-C 자동 점검은 틀(0-10, PR [#1](https://github.com/jinnsei99/ullim/pull/1))과 점검 1 파일 목록(0-11, PR [#2](https://github.com/jinnsei99/ullim/pull/2)), 점검 2 JS 문법(0-12, PR [#4](https://github.com/jinnsei99/ullim/pull/4)), 점검 3 앱 열기(0-13, PR [#5](https://github.com/jinnsei99/ullim/pull/5))까지 했다. #1 · #2는 `main`에 머지됐고 `main` 푸시 점검 · 배포가 초록이다. #4 · #5는 머지 전이다(PR 점검은 초록). #5는 #4 위에 만들었으니 #4를 먼저 머지한다.
+- 기능 폭은 넓다(README). 지금은 기능을 더하지 않고 기반을 다지는 중이다: [ROADMAP](ROADMAP.md) 단계 0. 0-A 문서와 0-B 저장소 분리는 끝났고, 0-C 자동 점검은 틀(0-10, PR [#1](https://github.com/jinnsei99/ullim/pull/1))과 점검 1 파일 목록(0-11, PR [#2](https://github.com/jinnsei99/ullim/pull/2)), 점검 2 JS 문법(0-12, PR [#4](https://github.com/jinnsei99/ullim/pull/4)), 점검 3 앱 열기(0-13, PR [#5](https://github.com/jinnsei99/ullim/pull/5))까지 했다. 네 PR 모두 `main`에 머지됐고 `main` 푸시 점검 · 배포가 초록이다.
 - **점검: `main` 푸시 · PR마다 Actions의 '점검'이 `node .github/check/run.mjs`를 돌린다.** 검사는 3개(`11-file-list.mjs` · `12-js-syntax.mjs` · `13-app-open.mjs`)이고, 초록이면 실행 화면 Annotations 칸에 `파일 목록: js 43개 일치 (…)`, `JS 문법: 44개 파일 오류 0 (js/ 43 · sw.js 1)`, `앱 열기: 화면 8개 콘솔 오류 0 · 데모 곡 '새벽 네 시' 트랙 7개 불러옴 · 재생 8/8`이 뜬다. 점검 한 번은 약 1분(앱 열기가 약 45초). 검사 더하는 법은 `.github/check/README.md`.
 - **저장소: `jinnsei99/ullim`(공개), 주소: https://jinnsei99.github.io/ullim/**. `main`에 푸시하면 `.github/workflows/pages.yml`이 Pages에 올린다.
 - **작업 폴더: 이 컴퓨터 바탕화면의 `ullim` 폴더**(이 저장소의 클론). 앞으로 모든 울림 작업은 여기서 한다. 바탕화면 `jinnsei` 클론은 옛 저장소(가계부 · 옛 주소 안내)용이다.
@@ -9,9 +9,8 @@
 - 정한 것: 디자인 규칙은 토큰이 생기는 만큼 단계적으로 엄격하게 한다(`CLAUDE.md` '디자인 규칙').
 
 ## 다음 할 일
-1. (내가) PR #4 → PR #5 순서로 머지한다. 머지할 때마다 `main` 푸시로 '점검'과 '사이트 배포'가 돈다. #5 머지 뒤 점검 Annotations에 세 줄(파일 목록 · JS 문법 · 앱 열기)이 뜨는지 본다.
-2. 0-14 점검 4: 예전 프로젝트 열기. 견본 `.ullim.json`이 `normalize()`를 지나고 트랙 · 장치 수가 그대로인지 본다. 앱을 크롬에서 띄우는 부분은 `13-app-open.mjs`의 웹 서버 · 크롬 켜기 · CDP 부분을 그대로 가져다 쓰면 된다(견본 파일은 사이트에 올라가도 되는 것만).
-3. (작게, 아무 때나) 배포 워크플로의 액션을 Node 24용 새 버전으로 올린다. 점검 워크플로는 이미 `checkout@v7` · `setup-node@v7`(둘 다 Node 24, 2026-11-10 기준 최신)을 쓴다.
+1. 0-14 점검 4: 예전 프로젝트 열기. 견본 `.ullim.json`이 `normalize()`를 지나고 트랙 · 장치 수가 그대로인지 본다. 앱을 크롬에서 띄우는 부분은 `13-app-open.mjs`의 웹 서버 · 크롬 켜기 · CDP 부분을 그대로 가져다 쓰면 된다(견본 파일은 사이트에 올라가도 되는 것만).
+2. (작게, 아무 때나) 배포 워크플로의 액션을 Node 24용 새 버전으로 올린다. 점검 워크플로는 이미 `checkout@v7` · `setup-node@v7`(둘 다 Node 24, 2026-11-10 기준 최신)을 쓴다.
 
 ## 알려진 문제
 - 자동 점검은 검사가 3개(js 파일 목록 · JS 문법 · 앱 열기)다. 예전 프로젝트 · 템플릿 소리는 아직 사람이 눈으로 찾아야 한다(단계 0-C 0-14~).
@@ -34,6 +33,15 @@
 ---
 
 ## 날짜별 기록
+
+### 2026-11-11 — PR #4 · #5 머지
+- 한 일: 제품 책임자 요청으로 Claude가 PR #4(0-12) → PR #5(0-13) 순서로 머지 커밋으로 합쳤다(빨강 시험 · 되돌린 커밋 기록이 남도록). `ci/check-js-syntax` · `ci/check-app-open` 브랜치는 지우지 않았다.
+- 확인:
+  - #4 머지 뒤 `main` 푸시의 '점검' · '사이트 배포'가 초록이었다.
+  - #5 머지 뒤에도 둘 다 초록이었다(점검 [실행](https://github.com/jinnsei99/ullim/actions/runs/43019063113), 배포 [실행](https://github.com/jinnsei99/ullim/actions/runs/43019063127)). 점검 Annotations에 세 줄(`파일 목록: js 43개 일치 (…)` · `JS 문법: 44개 파일 오류 0 (…)` · `앱 열기: 화면 8개 콘솔 오류 0 · 데모 곡 '새벽 네 시' 트랙 7개 불러옴 · 재생 8/8`)이 떴다.
+  - 실제 사이트에서 `/ullim/` · `index.html`은 200이었다. `.github/check/13-app-open.mjs` · `run.mjs`는 404여서 점검 파일이 올라가지 않았다. 배포 직후 몇 번은 503이 섞였지만 다시 열면 404였고, 내용이 나온 적은 없다.
+- 참고: #4를 머지한 뒤 GitHub의 #5 '바뀐 파일' 목록에 `12-js-syntax.mjs`가 한동안 남아 보였다. `git diff origin/main origin/ci/check-app-open`로 보면 실제 차이는 4개 파일뿐이었다(화면 갱신이 늦었을 뿐).
+- 확인하지 못한 것: 앱은 사이트에서 직접 열어 재생해 보지 않았다(머지 뒤 `main` 점검이 헤드리스 크롬으로 8화면을 열고 재생했다).
 
 ### 2026-11-11 — 점검 3 앱 열기 (0-13, PR #5)
 - 한 일: PR #4가 머지 전이라 `ci/check-js-syntax` 위에 `ci/check-app-open` 브랜치를 만들고 `.github/check/13-app-open.mjs`를 더했다(PR #5, 받는 쪽은 `main`).

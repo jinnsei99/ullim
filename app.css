@@ -1371,7 +1371,7 @@ body[data-design="b"]:not([data-step="3"]) .ctrl .drawbtn, body[data-design="b"]
 body[data-design="b"] .v-session .sess-mix { display: none; }
 body[data-design="b"] .ctrl .btn { min-height: 40px; padding: 0 12px; border-radius: 999px; }
 body[data-design="b"] .ctrl .btn.tr { width: 44px; padding: 0; }
-body[data-design="b"] .ctrl .btn.tr.play { width: 58px; min-height: 52px; background: var(--fg); border-color: var(--fg); color: var(--accent-fg); }
+body[data-design="b"] .ctrl .btn.tr.play { width: 58px; min-height: 52px; background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
 body[data-design="b"] .ctrl .btn.tr.play.on { box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 35%, transparent); color: var(--accent-fg); }
 body[data-design="b"] .ctrl .btn .ic { width: 16px; height: 16px; }
 body[data-design="b"] .ctrl .btn.tr.play .ic { width: 22px; height: 22px; }

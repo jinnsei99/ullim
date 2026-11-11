@@ -22,6 +22,7 @@
 | `docs/PROGRESS.md` | 현재 상태 · 다음 할 일 · 알려진 문제 · 최근 날짜별 기록. 작업이 끝날 때마다 고친다 |
 | `docs/HISTORY.md` | PROGRESS에서 일주일 넘은 날짜별 기록을 옮겨 두는 곳(새것이 위). PROGRESS를 고칠 때 함께 옮긴다 |
 | `docs/IDEAS.md` | 나중에 할 아이디어를 한 줄씩 |
+| `docs/DEPS.md` | `U.이름`마다 만드는 파일 · 쓰는 파일 표. 도구가 만든다(손으로 고치지 않는다). 코드와 다르면 점검 0-19가 빨강이고, 그 실행의 Artifacts에 새 파일이 있다 |
 | `docs/DESIGN.md` | (단계 1에서 만든다) 디자인 규칙. 생기면 아래 디자인 규칙보다 우선한다 |
 
 ## 함정 — 고치기 전에 확인
@@ -29,6 +30,7 @@
 2. **JS는 모듈이 아니다.** `index.html`의 `<script>` 순서대로 읽히는 전역 코드다. 모든 파일이 `(function (U) { … })(window.U = window.U || {})` 안에서 전역 객체 `window.U` 하나에 기능을 붙인다.
    - 뒤 파일이 앞 파일이 붙인 `U.이름`을 쓴다. 파일 맨 위의 `const { h, ui } = U;`처럼 읽는 순간 꺼내는 이름은, 그 이름을 붙이는 파일이 반드시 앞에 있어야 한다. script 순서는 이유 없이 바꾸지 않는다.
    - `U`에 새 이름을 붙이거나 이름을 바꾸면 `js/` 전체에서 `U.이름`과 `{ 이름 }` 꺼내기를 모두 검색한다. 같은 이름을 두 파일이 붙이면 뒤 파일이 조용히 덮어쓴다.
+     누가 만들고 누가 쓰는지는 `docs/DEPS.md`에서 먼저 찾는다. 그 지도가 바뀌는 변경을 하면 점검 0-19가 빨강이 되므로, 빨간 실행의 Artifacts `deps-…`의 DEPS.md를 받아 덮어쓰고 같은 PR에 커밋한다.
 3. **프로젝트 데이터 형식을 바꾸면** 예전 프로젝트·파일도 열리도록 변환 코드를 함께 넣는다.
    - 형식: 프로젝트 객체(`v: 1`), 파일 `.ullim.json` = `{ app: 'ullim', v: 1, project, media }`, IndexedDB `ullim`(projects · audio)과 `ullim-files`(파일 핸들), localStorage `ullim:prefs:v1` · `ullim:sounds:v1`, Claude 판은 계정 db `data/users/<id>/`.
    - 변환 자리는 `js/model.js`의 `normalize()` 하나다. 불러오기(`U.setProject`) · 되돌리기 · 파일 열기 · 내보내기 렌더가 모두 여기를 지난다.

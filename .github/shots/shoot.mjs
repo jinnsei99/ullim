@@ -1,10 +1,13 @@
-// 화면 촬영 (ROADMAP 0-16): 디자인 A·B·C × 컴퓨터(1440×900) · 아이패드 버전(1180×820) 6장 + 좁은 화면(390×844) 1장.
+// 화면 촬영 (ROADMAP 0-16 · 0-17): 디자인 A·B·C × 컴퓨터(1440×900) · 아이패드 버전(1180×820) 6장 + 좁은 화면(390×844) 1장을
+// 어두운 화면 · 밝은 화면으로 한 벌씩, 모두 14장. 어두운 7장을 먼저(0-16과 같은 순서 · 같은 방법) 찍고 밝은 7장을 찍는다.
+// 파일 이름 끝에 밝기를 붙인다(01-A-computer-1440x900-dark.png · …-light.png).
 // 점검이 아니다(이름이 숫자로 시작하지 않아서 .github/check/run.mjs가 돌리지 않는다). '화면 촬영' 워크플로
 // (.github/workflows/shots.yml)가 `node .github/shots/shoot.mjs`로 돌리고, 그림은 실행 화면 Artifacts에 zip으로 올라간다.
 // 크롬 부분(웹 서버 · 헤드리스 크롬 · CDP · 앱 열기)은 점검과 같은 ../check/lib/browser.mjs를 쓴다.
 //
 // 매번 똑같이 찍히게(0-18 전후 비교용):
-//   어두운 화면(prefers-color-scheme: dark)으로 고정 · '움직임 줄이기'(prefers-reduced-motion)로 앱 CSS의 애니메이션 · 전환을 끔 ·
+//   밝기는 시스템 설정(prefers-color-scheme: dark · light)을 흉내 내서 고르고, 앱의 '화면 밝기'는 기본값('시스템 설정 따르기')
+//   그대로 둔다. 열린 화면의 color-scheme이 바란 밝기인지 확인한다 · '움직임 줄이기'(prefers-reduced-motion)로 앱 CSS의 애니메이션 · 전환을 끔 ·
 //   재생하지 않음(재생 위치 맨 앞, 소리 막대 0) · 오디오가 켜진 뒤(상태 줄 '소리 켜기' 단추가 사라진 뒤) · 글꼴 4종과
 //   화면에 쓰인 글꼴 조각을 다 받아 둔 뒤 다시 불러온 화면 · 창 · 알림 말풍선이 없을 때 · 매 프레임 그리기를 멈추고 글자 커서를
 //   숨긴 뒤에 찍는다. 크롬은 그림을 매번 똑같이 그리는 옵션(CHROME_FLAGS)으로 켠다.
@@ -21,19 +24,21 @@ const OUT = '_shots';   // 저장소 맨 위 기준. 워크플로가 이 폴더�
 const SETTLE_MS = 1500, STEADY_MS = 15000, ALL_MS = 300000;
 const PREFS = { welcomed: true, designIntro: true };   // 시작 창 · 디자인 안내를 건너뛴다(0-13과 같음)
 const FONTS = ['Black Han Sans', 'IBM Plex Mono', 'IBM Plex Sans Condensed', 'IBM Plex Sans KR'];   // index.html이 구글 글꼴에서 받는 4종
-const MEDIA = [{ name: 'prefers-color-scheme', value: 'dark' }, { name: 'prefers-reduced-motion', value: 'reduce' }];
+const media = scheme => [{ name: 'prefers-color-scheme', value: scheme }, { name: 'prefers-reduced-motion', value: 'reduce' }];
 // 크롬이 그림을 매번 똑같이 그리게: 그래픽 처리를 한 갈래 소프트웨어로(둥근 모서리 색이 1씩 흔들렸다) · CPU마다 다른 빠른 계산을 끔 ·
 // 색 공간 고정 · 일부만 다시 그리기 끔
 const CHROME_FLAGS = ['--disable-gpu', '--disable-skia-runtime-opts', '--force-color-profile=srgb', '--disable-partial-raster'];
-const SHOTS = [
-  { file: '01-A-computer-1440x900.png', name: '디자인 A · 컴퓨터 버전', w: 1440, h: 900, prefs: { design: 'a', uiMode: 'desktop' } },
-  { file: '02-B-computer-1440x900.png', name: '디자인 B · 컴퓨터 버전', w: 1440, h: 900, prefs: { design: 'b', uiMode: 'desktop' } },
-  { file: '03-C-computer-1440x900.png', name: '디자인 C · 컴퓨터 버전', w: 1440, h: 900, prefs: { design: 'c', uiMode: 'desktop' } },
-  { file: '04-A-ipad-1180x820.png', name: '디자인 A · 아이패드 버전', w: 1180, h: 820, prefs: { design: 'a', uiMode: 'touch' } },
-  { file: '05-B-ipad-1180x820.png', name: '디자인 B · 아이패드 버전', w: 1180, h: 820, prefs: { design: 'b', uiMode: 'touch' } },
-  { file: '06-C-ipad-1180x820.png', name: '디자인 C · 아이패드 버전', w: 1180, h: 820, prefs: { design: 'c', uiMode: 'touch' } },
-  { file: '07-narrow-390x844.png', name: '좁은 화면 (디자인 A · 아이패드 버전)', w: 390, h: 844, prefs: { design: 'a', uiMode: 'touch' } }
+const SCREENS = [
+  { id: '01-A-computer-1440x900', name: '디자인 A · 컴퓨터 버전', w: 1440, h: 900, prefs: { design: 'a', uiMode: 'desktop' } },
+  { id: '02-B-computer-1440x900', name: '디자인 B · 컴퓨터 버전', w: 1440, h: 900, prefs: { design: 'b', uiMode: 'desktop' } },
+  { id: '03-C-computer-1440x900', name: '디자인 C · 컴퓨터 버전', w: 1440, h: 900, prefs: { design: 'c', uiMode: 'desktop' } },
+  { id: '04-A-ipad-1180x820', name: '디자인 A · 아이패드 버전', w: 1180, h: 820, prefs: { design: 'a', uiMode: 'touch' } },
+  { id: '05-B-ipad-1180x820', name: '디자인 B · 아이패드 버전', w: 1180, h: 820, prefs: { design: 'b', uiMode: 'touch' } },
+  { id: '06-C-ipad-1180x820', name: '디자인 C · 아이패드 버전', w: 1180, h: 820, prefs: { design: 'c', uiMode: 'touch' } },
+  { id: '07-narrow-390x844', name: '좁은 화면 (디자인 A · 아이패드 버전)', w: 390, h: 844, prefs: { design: 'a', uiMode: 'touch' } }
 ];
+const SCHEMES = [{ id: 'dark', name: '어두움' }, { id: 'light', name: '밝음' }];   // 이 순서로 찍는다(어두운 7장 먼저)
+const SHOTS = SCHEMES.flatMap(c => SCREENS.map(s => Object.assign({}, s, { scheme: c.id, file: `${s.id}-${c.id}.png`, name: `${s.name} · ${c.name}` })));
 const problems = [], warnings = [], rows = [];
 const hash = buf => createHash('sha256').update(buf).digest('hex').slice(0, 12);
 
@@ -48,7 +53,8 @@ const STATE = `(async () => {
   return { audio: U.engine.ctx.state, playing: !!U.engine.playing, fontStatus: document.fonts.status, faces: faces.length,
     missing: fonts.filter(f => !have.has(f)), dialog: !!document.querySelector('.dlg-back'), toast: !!document.querySelector('.toast'),
     song: U.project.name, tracks: U.project.tracks.length, demoName: d.name, demoTracks: d.tracks.length,
-    design: document.body.dataset.design, touch: document.documentElement.classList.contains('touch'), narrow: document.body.classList.contains('narrow') };
+    design: document.body.dataset.design, touch: document.documentElement.classList.contains('touch'), narrow: document.body.classList.contains('narrow'),
+    scheme: getComputedStyle(document.documentElement).colorScheme };
 })()`;
 const READY = `window.U && U.project && U.engine && document.querySelector('.tr.play')`;   // 앱 상태와 재생 단추가 생기면
 // 찍기 직전: 매 프레임 그리기(미터 · 재생 위치 · 깜빡임, js/ui-core.js loop)를 멈추고, 포커스를 풀고, 글자 커서를 숨긴다
@@ -68,14 +74,14 @@ async function shootOnce(send, s, n) {
   const run = page.evaluate, sid = page.sid;
   let png = null, st = null;
   try {
-    await send('Emulation.setEmulatedMedia', { features: MEDIA }, sid);
+    await send('Emulation.setEmulatedMedia', { features: media(s.scheme) }, sid);
     await openApp(send, page, { w: s.w, h: s.h, prefs: Object.assign({}, PREFS, s.prefs), ready: READY });
 
     // 가만해질 때까지: 오디오 켜짐 · 글꼴 다 불러옴(조각 수가 두 번 연속 같음) · 창 · 알림 없음.
     // 두 번 연다: 캔버스(패드 편집기 파형 눈금 등)는 처음 그릴 때 글꼴이 아직 없으면 대신 글꼴로 그리고 글꼴이 와도 다시 그리지
     // 않아서, 처음 연 화면은 실행마다 글꼴이 달랐다. 그래서 한 번 열어 글꼴을 받아 두고(같은 저장 공간의 캐시), 다시 불러온 화면을
     // 찍는다(글꼴을 이미 받은 사람이 다시 연 화면). 앱을 다시 그리게 하는 방법(U.inval · resize)은 앱 상태를 바꿔서 쓰지 않는다
-    const want = { design: s.prefs.design, touch: s.prefs.uiMode === 'touch', narrow: s.w < (s.prefs.uiMode === 'desktop' ? 600 : 860) };
+    const want = { design: s.prefs.design, touch: s.prefs.uiMode === 'touch', narrow: s.w < (s.prefs.uiMode === 'desktop' ? 600 : 860), scheme: s.scheme };
     const until = Date.now() + STEADY_MS * 2;
     let steady = false;
     for (const round of [1, 2]) {
@@ -96,8 +102,8 @@ async function shootOnce(send, s, n) {
       while (!open && Date.now() < back) { await sleep(200); open = await run(`!!(${READY})`).catch(() => false); }
       if (!open) throw new Error('다시 불러온 앱이 20초 안에 열리지 않았다');
     }
-    if (st.design !== want.design || st.touch !== want.touch || st.narrow !== want.narrow)
-      rec.errors.push(`바라던 화면으로 열리지 않았다 (바란 것 ${JSON.stringify(want)} · 열린 것 ${JSON.stringify({ design: st.design, touch: st.touch, narrow: st.narrow })})`);
+    if (st.design !== want.design || st.touch !== want.touch || st.narrow !== want.narrow || st.scheme !== want.scheme)
+      rec.errors.push(`바라던 화면으로 열리지 않았다 (바란 것 ${JSON.stringify(want)} · 열린 것 ${JSON.stringify({ design: st.design, touch: st.touch, narrow: st.narrow, scheme: st.scheme })})`);
     if (st.song !== st.demoName || st.tracks !== st.demoTracks) rec.errors.push(`데모 곡이 아니다 (열린 곡 '${st.song}' 트랙 ${st.tracks})`);
     if (st.missing.length) rec.errors.push(`글꼴을 불러오지 못했다: ${st.missing.join(' · ')}`);
     if (!steady) rec.errors.push(`${STEADY_MS / 1000}초 안에 가만해지지 않았다 (오디오 ${st.audio} · 글꼴 ${st.fontStatus} · 창 ${st.dialog ? '있음' : '없음'} · 알림 ${st.toast ? '있음' : '없음'})`);
@@ -127,7 +133,7 @@ async function shoot(send, s) {
     try { how = ` · ${pixelDiff(a.png, b.png)}`; } catch (err) { how = ` · 점 비교 못 함 (${err.message})`; }
     problems.push(`${s.name}: 두 번 찍은 그림이 다르다 (${hash(a.png)} · ${hash(b.png)}${how})`);
   }
-  rows.push({ file: s.file, name: s.name, hash: hash(a.png), kb: Math.round(a.png.length / 1024), same, faces: a.faces });
+  rows.push({ file: s.file, name: s.name, scheme: s.scheme, hash: hash(a.png), kb: Math.round(a.png.length / 1024), same, faces: a.faces });
 }
 
 // 두 그림이 다를 때 어디가 얼마나 다른지: PNG를 풀어(크롬이 만든 8비트 RGB · RGBA만) 점마다 비교한다
@@ -179,7 +185,7 @@ function report() {
   const allSame = rows.length === SHOTS.length && rows.every(r => r.same);
   const lines = problems.length
     ? [`화면 촬영: 문제 ${problems.length}개 (찍은 그림 ${rows.length}/${SHOTS.length}장)`, ...problems.map(p => `  - ${p}`)]
-    : [`화면 촬영: ${rows.length}장 · 화면마다 두 번 찍어 ${allSame ? '모두 같음' : '다른 것 있음'} · 글꼴 ${FONTS.length}종 불러옴 · ${chromeVer}`];
+    : [`화면 촬영: ${rows.length}장 (${SCHEMES.map(c => `${c.name} ${rows.filter(r => r.scheme === c.id).length}`).join(' · ')}) · 화면마다 두 번 찍어 ${allSame ? '모두 같음' : '다른 것 있음'} · 글꼴 ${FONTS.length}종 불러옴 · ${chromeVer}`];
   const detail = rows.map(r => `  ${r.same ? '✓' : '✗'} ${r.file}  ${r.hash}  ${r.kb}KB  글꼴 조각 ${r.faces}개`);
   const warn = warnings.map(w => `  ! 경고 · ${w}`);
   (problems.length ? console.error : console.log)([...lines, ...detail, ...warn].join('\n'));
@@ -192,9 +198,9 @@ function report() {
     const data = s => s.replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A');
     const prop = s => data(s).replace(/:/g, '%3A').replace(/,/g, '%2C');
     console.log(problems.length
-      ? `::error title=${prop('화면 촬영 0-16')}::${data(lines.join('\n'))}`
-      : `::notice title=${prop('화면 촬영 0-16')}::${data([lines[0], ...rows.map(r => `${r.file} ${r.hash}`)].join('\n'))}`);
-    if (warnings.length) console.log(`::warning title=${prop('화면 촬영 0-16')}::${data(warnings.join('\n'))}`);
+      ? `::error title=${prop('화면 촬영 0-16 · 0-17')}::${data(lines.join('\n'))}`
+      : `::notice title=${prop('화면 촬영 0-16 · 0-17')}::${data([lines[0], ...rows.map(r => `${r.file} ${r.hash}`)].join('\n'))}`);
+    if (warnings.length) console.log(`::warning title=${prop('화면 촬영 0-16 · 0-17')}::${data(warnings.join('\n'))}`);
   }
   if (process.env.GITHUB_STEP_SUMMARY) {
     const table = ['| 그림 | 화면 | 지문 | 크기 | 두 번 같음 |', '|---|---|---|---|---|',

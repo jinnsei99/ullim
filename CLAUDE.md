@@ -32,6 +32,7 @@
    - 변환 자리는 `js/model.js`의 `normalize()` 하나다. 불러오기(`U.setProject`) · 되돌리기 · 파일 열기 · 내보내기 렌더가 모두 여기를 지난다.
    - `normalize()`는 모르는 장치 종류(`kind`)를 지운다. 장치 종류 이름을 바꾸면 예전 프로젝트에서 그 장치가 조용히 사라진다.
    - DB 이름 · 저장 키 · 필드 이름은 바꾸지 않는다. 꼭 바꿔야 하면 옛 이름을 읽는 코드를 남긴다.
+   - 점검 0-14(`.github/check/14-old-projects.mjs`)가 얼려 둔 견본 `.github/check/projects/날짜/*.ullim.json`을 열어 트랙 · 장치 · 클립 수가 그대로인지 본다. 형식을 바꾸기 전에 지금 앱으로 새 날짜 견본을 만든다(`projects/README.md`). 이미 있는 견본은 고치지 않는다.
 4. **스케줄러와 엔벌로프 방식은 이유 없이 바꾸지 않는다.**
    - 스케줄러(`js/engine.js`): Web Worker 타이머로 `TICK_MS = 25`ms마다 깨어나 `LOOKAHEAD = 0.12`초 앞까지 음을 예약한다.
    - 엔벌로프(`js/dsp.js`의 `envOn` · `envOff` · `smooth`): `setTargetAtTime`을 써서 음을 중간에 끊어도 틱 소리가 나지 않는다. 새 악기도 음을 켜고 끌 때 이 함수를 쓴다.

@@ -10,7 +10,6 @@
 
 ## 다음 할 일
 1. 0-16 화면 조합 자동 촬영(0-D 시작). 크롬 부분은 `.github/check/lib/browser.mjs`를 쓸 수 있다.
-2. (작게, 아무 때나) 배포 워크플로의 액션을 Node 24용 새 버전으로 올린다. 점검 워크플로는 이미 `checkout@v7` · `setup-node@v7`(둘 다 Node 24, 2026-11-10 기준 최신)을 쓴다.
 
 ## 알려진 문제
 - 자동 점검은 검사가 5개(js 파일 목록 · JS 문법 · 앱 열기 · 예전 프로젝트 · 장르 템플릿)다.
@@ -32,13 +31,17 @@
 - `js/samples.js`를 만드는 도구가 저장소 어디에도 없다(파일 이름으로 확인).
 - Claude 아티팩트 판(README 맨 위 링크)을 올리는 방법이 어디에도 적혀 있지 않다.
 - 작업 환경: 이 컴퓨터의 git 전체 설정 이메일은 `jinnsei9@email.com`인데 예전 커밋은 `jinnsei9@gmail.com`이다(오타로 보임). 바탕화면 `jinnsei` · `ullim` 클론에만 gmail로 따로 설정했으니, 새로 클론하면 다시 설정한다.
-- 배포 워크플로가 쓰는 액션(`checkout@v4` · `configure-pages@v5` · `upload-pages-artifact@v3` · `deploy-pages@v4`)이 Node.js 20용이라 Actions에 "곧 지원 끝" 경고가 뜬다. 지금은 Node 24로 대신 돌아서 배포는 된다. 새 버전으로 올리는 일이 남았다.
 - 이 컴퓨터에는 Node가 없다. Claude 앱 안의 브라우저 창은 서비스 워커를 등록하지 못해서, 서비스 워커 · 오프라인 확인은 헤드리스 크롬으로 해야 한다.
   - 이사 시험 때 Python 표준 라이브러리만으로 크롬 DevTools 프로토콜을 움직이는 도구(`movetest.py` · `live.py`)를 만들었지만, 세션 임시 폴더에 있어서 저장소에는 없다. 0-C에서 필요하면 다시 만든다.
 
 ---
 
 ## 날짜별 기록
+
+### 2026-11-12 — 배포 워크플로 액션을 Node 24용으로 (PR #13)
+- 한 일: `main`(c73442e)에서 `ci/pages-node24` 브랜치를 만들고 `.github/workflows/pages.yml`의 액션 네 개를 올렸다: `checkout` v4 → v7(점검 워크플로와 같은 판), `configure-pages` v5 → v6, `upload-pages-artifact` v3 → v5(안에서 `upload-artifact` v7을 부른다), `deploy-pages` v4 → v5(PR [#13](https://github.com/jinnsei99/ullim/pull/13)). 네 판 모두 `action.yml`이 `node24`인 것을 직접 열어 확인했다(2026-11-12 기준 최신 큰 판). 올릴 파일을 모으는 단계 · 권한 · 나머지는 그대로다.
+- 판단: `upload-pages-artifact` v4부터 점(.)으로 시작하는 파일을 올리지 않는다. 저장소에서 그런 파일은 `.git` · `.github`뿐이고 원래 빼고 올리므로 영향이 없다(`git ls-files`로 확인).
+- 확인: 배포는 `main`에서만 돌아서 PR에서는 '점검'만 돈다. 배포 결과는 머지 뒤 기록에 적는다. 바꾸기 전 배포([실행](https://github.com/jinnsei99/ullim/actions/runs/43037175487))는 올릴 파일 265개였고 Annotations에 "Node.js 20 is deprecated … `checkout@v4`, `configure-pages@v5`, `deploy-pages@v4`, `upload-artifact@v4`" 경고가 있었다.
 
 ### 2026-11-11 — PR #11 머지
 - 한 일: 제품 책임자 요청으로 Claude가 PR #11(0-15)을 머지 커밋으로 합쳤다(fd48eab, 빨강 시험 · 되돌린 커밋 기록이 남도록). `ci/check-genre-templates` 브랜치는 지우지 않았다.

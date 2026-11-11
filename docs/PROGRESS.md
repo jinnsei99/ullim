@@ -1,7 +1,7 @@
 # 울림 스튜디오 — 진행 기록
 
-## 현재 상태 (2026-11-11)
-- 기능 폭은 넓다(README). 지금은 기능을 더하지 않고 기반을 다지는 중이다: [ROADMAP](ROADMAP.md) 단계 0. 0-A 문서와 0-B 저장소 분리는 끝났고, 0-C 자동 점검은 틀(0-10, PR [#1](https://github.com/jinnsei99/ullim/pull/1))과 점검 1 파일 목록(0-11, PR [#2](https://github.com/jinnsei99/ullim/pull/2)), 점검 2 JS 문법(0-12, PR [#4](https://github.com/jinnsei99/ullim/pull/4)), 점검 3 앱 열기(0-13, PR [#5](https://github.com/jinnsei99/ullim/pull/5)), 점검 4 예전 프로젝트 열기(0-14, PR [#7](https://github.com/jinnsei99/ullim/pull/7))까지 `main`에 머지됐고 `main` 푸시 점검 · 배포가 초록이다. 0-15 준비로 13 · 14의 크롬 부분을 `.github/check/lib/browser.mjs`로 모았다(PR [#9](https://github.com/jinnsei99/ullim/pull/9), 머지됨). 점검 5 장르 템플릿(0-15, PR [#11](https://github.com/jinnsei99/ullim/pull/11))도 머지됐다(`main` 푸시 점검 · 배포 초록). 이것으로 0-C 자동 점검 다섯 개가 다 만들어졌다.
+## 현재 상태 (2026-11-12)
+- 기능 폭은 넓다(README). 지금은 기능을 더하지 않고 기반을 다지는 중이다: [ROADMAP](ROADMAP.md) 단계 0. 0-A 문서와 0-B 저장소 분리는 끝났고, 0-C 자동 점검은 틀(0-10, PR [#1](https://github.com/jinnsei99/ullim/pull/1))과 점검 1 파일 목록(0-11, PR [#2](https://github.com/jinnsei99/ullim/pull/2)), 점검 2 JS 문법(0-12, PR [#4](https://github.com/jinnsei99/ullim/pull/4)), 점검 3 앱 열기(0-13, PR [#5](https://github.com/jinnsei99/ullim/pull/5)), 점검 4 예전 프로젝트 열기(0-14, PR [#7](https://github.com/jinnsei99/ullim/pull/7))까지 `main`에 머지됐고 `main` 푸시 점검 · 배포가 초록이다. 0-15 준비로 13 · 14의 크롬 부분을 `.github/check/lib/browser.mjs`로 모았다(PR [#9](https://github.com/jinnsei99/ullim/pull/9), 머지됨). 점검 5 장르 템플릿(0-15, PR [#11](https://github.com/jinnsei99/ullim/pull/11))도 머지됐다(`main` 푸시 점검 · 배포 초록). 이것으로 0-C 자동 점검 다섯 개가 다 만들어졌다. 배포 워크플로의 액션도 Node 24용으로 올렸다(PR [#13](https://github.com/jinnsei99/ullim/pull/13), 머지됨, Node 20 경고 없음).
 - **점검: `main` 푸시 · PR마다 Actions의 '점검'이 `node .github/check/run.mjs`를 돌린다.** 검사는 5개(`11-file-list.mjs` · `12-js-syntax.mjs` · `13-app-open.mjs` · `14-old-projects.mjs` · `15-genre-templates.mjs`)이고, 초록이면 실행 화면 Annotations 칸에 `파일 목록: js 43개 일치 (…)`, `JS 문법: 44개 파일 오류 0 (js/ 43 · sw.js 1)`, `앱 열기: 화면 8개 콘솔 오류 0 · 데모 곡 '새벽 네 시' 트랙 7개 불러옴 · 재생 8/8`, `예전 프로젝트: 견본 11개 모두 그대로 (…)`(+ 견본마다 한 줄), `장르 템플릿: 10종 모두 소리 남 · 넘침 0 (가장 꽉 찬 씬 4마디)`(+ 장르마다 `하우스 (드롭): RMS -11.1 dB · 피크 -0.7 dB`)가 뜬다. 점검 한 번은 약 1분 40초(앱 열기 약 45초 · 예전 프로젝트 약 12초 · 장르 템플릿 약 30초, 렌더는 장르마다 1.4~4초). 검사 더하는 법은 `.github/check/README.md`. 크롬이 필요한 검사는 `.github/check/lib/browser.mjs`(웹 서버 · 크롬 켜기 · CDP · 앱 열기)를 쓴다.
 - **저장소: `jinnsei99/ullim`(공개), 주소: https://jinnsei99.github.io/ullim/**. `main`에 푸시하면 `.github/workflows/pages.yml`이 Pages에 올린다.
 - **작업 폴더: 이 컴퓨터 바탕화면의 `ullim` 폴더**(이 저장소의 클론). 앞으로 모든 울림 작업은 여기서 한다. 바탕화면 `jinnsei` 클론은 옛 저장소(가계부 · 옛 주소 안내)용이다.
@@ -37,6 +37,15 @@
 ---
 
 ## 날짜별 기록
+
+### 2026-11-12 — PR #13 머지 · 배포 확인
+- 한 일: 제품 책임자 승인으로 Claude가 PR #13을 머지 커밋으로 합쳤다(047e5a5). PR의 '점검'([실행](https://github.com/jinnsei99/ullim/actions/runs/43050687017))은 초록이었다. `ci/pages-node24` 브랜치는 지우지 않았다.
+- 확인: 머지 뒤 '사이트 배포'([실행](https://github.com/jinnsei99/ullim/actions/runs/43050946337)) · '점검'([실행](https://github.com/jinnsei99/ullim/actions/runs/43050945709))이 초록이었다.
+  - 배포 로그에서 `checkout@v7` · `configure-pages@v6` · `upload-pages-artifact@v5` · `deploy-pages@v5` · `upload-artifact`(v7.0.0 고정 SHA)를 받았고, 올릴 파일은 265개로 전과 같았다.
+  - 배포 Annotations에 Node.js 20 경고가 없어졌다. 남은 것은 "ubuntu-latest가 Ubuntu 26으로 옮겨 간다"는 안내(notice) 하나로, 점검 실행에도 원래 있던 것이다.
+  - 점검 Annotations 다섯 줄은 PR #11 머지 뒤 `main` 실행과 같은 숫자였다.
+  - 실제 사이트에서 `/ullim/` · `index.html` · `js/main.js` · `sw.js`는 200, `.github/workflows/pages.yml` · `.github/check/run.mjs`는 404였다. Claude 앱 안 브라우저로 새 주소를 열자 데모 곡 '새벽 네 시'(트랙 7개)가 불러와지고 콘솔 오류는 0이었다.
+- 확인하지 못한 것: 사이트에서 재생 소리 · 서비스 워커 · 오프라인은 보지 않았다(앱 파일은 바뀌지 않았고, Claude 앱 안 브라우저는 서비스 워커를 등록하지 못한다).
 
 ### 2026-11-12 — 배포 워크플로 액션을 Node 24용으로 (PR #13)
 - 한 일: `main`(c73442e)에서 `ci/pages-node24` 브랜치를 만들고 `.github/workflows/pages.yml`의 액션 네 개를 올렸다: `checkout` v4 → v7(점검 워크플로와 같은 판), `configure-pages` v5 → v6, `upload-pages-artifact` v3 → v5(안에서 `upload-artifact` v7을 부른다), `deploy-pages` v4 → v5(PR [#13](https://github.com/jinnsei99/ullim/pull/13)). 네 판 모두 `action.yml`이 `node24`인 것을 직접 열어 확인했다(2026-11-12 기준 최신 큰 판). 올릴 파일을 모으는 단계 · 권한 · 나머지는 그대로다.

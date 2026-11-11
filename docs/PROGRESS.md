@@ -1,17 +1,16 @@
 # 울림 스튜디오 — 진행 기록
 
 ## 현재 상태 (2026-11-11)
-- 기능 폭은 넓다(README). 지금은 기능을 더하지 않고 기반을 다지는 중이다: [ROADMAP](ROADMAP.md) 단계 0. 0-A 문서와 0-B 저장소 분리는 끝났고, 0-C 자동 점검은 틀(0-10, PR [#1](https://github.com/jinnsei99/ullim/pull/1))과 점검 1 파일 목록(0-11, PR [#2](https://github.com/jinnsei99/ullim/pull/2)), 점검 2 JS 문법(0-12, PR [#4](https://github.com/jinnsei99/ullim/pull/4)), 점검 3 앱 열기(0-13, PR [#5](https://github.com/jinnsei99/ullim/pull/5)), 점검 4 예전 프로젝트 열기(0-14, PR [#7](https://github.com/jinnsei99/ullim/pull/7))까지 했다. 모두 `main`에 머지됐고 `main` 푸시 점검 · 배포가 초록이다. 0-15 준비로 13 · 14의 크롬 부분을 `.github/check/lib/browser.mjs`로 모았다(PR [#9](https://github.com/jinnsei99/ullim/pull/9), 머지 전).
-- **점검: `main` 푸시 · PR마다 Actions의 '점검'이 `node .github/check/run.mjs`를 돌린다.** 검사는 4개(`11-file-list.mjs` · `12-js-syntax.mjs` · `13-app-open.mjs` · `14-old-projects.mjs`)이고, 초록이면 실행 화면 Annotations 칸에 `파일 목록: js 43개 일치 (…)`, `JS 문법: 44개 파일 오류 0 (js/ 43 · sw.js 1)`, `앱 열기: 화면 8개 콘솔 오류 0 · 데모 곡 '새벽 네 시' 트랙 7개 불러옴 · 재생 8/8`, `예전 프로젝트: 견본 11개 모두 그대로 (…)`(+ 견본마다 한 줄)가 뜬다. 점검 한 번은 약 1분 10초(앱 열기 약 45초 · 예전 프로젝트 약 12초). 검사 더하는 법은 `.github/check/README.md`. 크롬이 필요한 검사는 `.github/check/lib/browser.mjs`(웹 서버 · 크롬 켜기 · CDP · 앱 열기)를 쓴다(PR #9가 머지되면).
+- 기능 폭은 넓다(README). 지금은 기능을 더하지 않고 기반을 다지는 중이다: [ROADMAP](ROADMAP.md) 단계 0. 0-A 문서와 0-B 저장소 분리는 끝났고, 0-C 자동 점검은 틀(0-10, PR [#1](https://github.com/jinnsei99/ullim/pull/1))과 점검 1 파일 목록(0-11, PR [#2](https://github.com/jinnsei99/ullim/pull/2)), 점검 2 JS 문법(0-12, PR [#4](https://github.com/jinnsei99/ullim/pull/4)), 점검 3 앱 열기(0-13, PR [#5](https://github.com/jinnsei99/ullim/pull/5)), 점검 4 예전 프로젝트 열기(0-14, PR [#7](https://github.com/jinnsei99/ullim/pull/7))까지 했다. 모두 `main`에 머지됐고 `main` 푸시 점검 · 배포가 초록이다. 0-15 준비로 13 · 14의 크롬 부분을 `.github/check/lib/browser.mjs`로 모았다(PR [#9](https://github.com/jinnsei99/ullim/pull/9), `main`에 머지됨).
+- **점검: `main` 푸시 · PR마다 Actions의 '점검'이 `node .github/check/run.mjs`를 돌린다.** 검사는 4개(`11-file-list.mjs` · `12-js-syntax.mjs` · `13-app-open.mjs` · `14-old-projects.mjs`)이고, 초록이면 실행 화면 Annotations 칸에 `파일 목록: js 43개 일치 (…)`, `JS 문법: 44개 파일 오류 0 (js/ 43 · sw.js 1)`, `앱 열기: 화면 8개 콘솔 오류 0 · 데모 곡 '새벽 네 시' 트랙 7개 불러옴 · 재생 8/8`, `예전 프로젝트: 견본 11개 모두 그대로 (…)`(+ 견본마다 한 줄)가 뜬다. 점검 한 번은 약 1분 10초(앱 열기 약 45초 · 예전 프로젝트 약 12초). 검사 더하는 법은 `.github/check/README.md`. 크롬이 필요한 검사는 `.github/check/lib/browser.mjs`(웹 서버 · 크롬 켜기 · CDP · 앱 열기)를 쓴다.
 - **저장소: `jinnsei99/ullim`(공개), 주소: https://jinnsei99.github.io/ullim/**. `main`에 푸시하면 `.github/workflows/pages.yml`이 Pages에 올린다.
 - **작업 폴더: 이 컴퓨터 바탕화면의 `ullim` 폴더**(이 저장소의 클론). 앞으로 모든 울림 작업은 여기서 한다. 바탕화면 `jinnsei` 클론은 옛 저장소(가계부 · 옛 주소 안내)용이다.
 - 옛 주소 `/jinnsei/ullim/`은 새 주소로 넘어간다(옛 저장소 PR [jinnsei99/jinnsei#42](https://github.com/jinnsei99/jinnsei/pull/42)). 컴퓨터 · 아이패드에서 제품 책임자가 확인했다.
 - 정한 것: 디자인 규칙은 토큰이 생기는 만큼 단계적으로 엄격하게 한다(`CLAUDE.md` '디자인 규칙').
 
 ## 다음 할 일
-1. (제품 책임자 확인 뒤) PR #9 머지 → `main` 푸시 점검이 초록이고 Annotations 네 줄이 전과 같은지 본다.
-2. 0-15 점검 5: 장르 템플릿 10종 4마디 오프라인 렌더. `main`에서 브랜치를 만들고, 크롬 부분은 `.github/check/lib/browser.mjs`를 가져다 쓴다(`14-old-projects.mjs` 마지막 절처럼 `startServer` → `launchChrome` → `connect` → `newPage` → `openApp`, 끝에 `stop`). 템플릿은 `U.GENRES` · `U.genreProject(id)`.
-3. (작게, 아무 때나) 배포 워크플로의 액션을 Node 24용 새 버전으로 올린다. 점검 워크플로는 이미 `checkout@v7` · `setup-node@v7`(둘 다 Node 24, 2026-11-10 기준 최신)을 쓴다.
+1. 0-15 점검 5: 장르 템플릿 10종 4마디 오프라인 렌더. `main`에서 브랜치를 만들고, 크롬 부분은 `.github/check/lib/browser.mjs`를 가져다 쓴다(`14-old-projects.mjs` 마지막 절처럼 `startServer` → `launchChrome` → `connect` → `newPage` → `openApp`, 끝에 `stop`). 템플릿은 `U.GENRES` · `U.genreProject(id)`.
+2. (작게, 아무 때나) 배포 워크플로의 액션을 Node 24용 새 버전으로 올린다. 점검 워크플로는 이미 `checkout@v7` · `setup-node@v7`(둘 다 Node 24, 2026-11-10 기준 최신)을 쓴다.
 
 ## 알려진 문제
 - 자동 점검은 검사가 4개(js 파일 목록 · JS 문법 · 앱 열기 · 예전 프로젝트)다. 템플릿 소리는 아직 사람이 귀로 찾아야 한다(단계 0-C 0-15).
@@ -38,6 +37,11 @@
 
 ## 날짜별 기록
 
+### 2026-11-11 — PR #9 머지
+- 한 일: 제품 책임자 요청으로 Claude가 PR #9(0-15 준비)를 머지 커밋으로 합쳤다(9f33134, 빨강 시험 · 되돌린 커밋 기록이 남도록). `ci/check-lib` 브랜치는 지우지 않았다.
+- 확인: 머지 뒤 `main` 푸시의 '점검'([실행](https://github.com/jinnsei99/ullim/actions/runs/43035583442)) · '사이트 배포'([실행](https://github.com/jinnsei99/ullim/actions/runs/43035583460))가 초록이었다. 점검 Annotations는 머지 전 `main` 실행([43026910062](https://github.com/jinnsei99/ullim/actions/runs/43026910062))과 글자 그대로 같았다. 실제 사이트에서 `/ullim/` · `index.html` · `sw.js`는 200, `.github/check/lib/browser.mjs` · `13-app-open.mjs` · `README.md`는 404였다.
+- 확인하지 못한 것: 앱은 사이트에서 직접 열어 재생해 보지 않았다(앱 파일은 바뀌지 않았고, `main` 점검이 헤드리스 크롬으로 열고 재생했다).
+
 ### 2026-11-11 — 점검 13 · 14의 크롬 부분 모으기 (0-15 준비, PR #9)
 - 한 일: `main`(594e99c)에서 `ci/check-lib` 브랜치를 만들었다. 13 · 14에 똑같이 들어 있던 웹 서버 · 크롬 켜기 · CDP · 앱 열기 · 끝 정리를 `.github/check/lib/browser.mjs`(181줄) 하나로 옮기고, 두 검사는 그것을 가져다 쓰게 고쳤다(두 파일에서 298줄을 지우고 31줄을 더했다. 각각 약 130줄 줄었다). 화면 목록 · 재생 시험 · 견본 셈 · 결과 출력은 각 검사에 그대로 두었다. 오류 문구 · 시간 제한 · 크롬 옵션은 한 글자도 바꾸지 않았다.
   - 다른 점 하나를 풀었다: 13은 오류를 화면마다, 14는 "지금 여는 견본"에 모은다. 그래서 `newPage`가 기록을 받거나 기록을 돌려주는 함수를 받는다(14는 `() => current`). 워커의 사건은 부모 페이지와 같은 기록에 간다(전과 같음).
@@ -49,7 +53,7 @@
   - 14 빨강: 0-14 때의 시험 커밋(`duck` → `pump`)을 다시 얹은 [실행](https://github.com/jinnsei99/ullim/actions/runs/43032321203). `예전 프로젝트: 문제 10개 (견본 11개 중 그대로 6개)`(견본 5개가 normalize 뒤 · 파일로 연 뒤 빨강)이고, Annotations 전체가 예전 빨강([43024786337](https://github.com/jinnsei99/ullim/actions/runs/43024786337))과 똑같다. 13은 초록이었다.
   - 되돌림: 두 시험 모두 `git revert`("This reverts commit …" 줄 남김) 뒤 다시 초록 [실행](https://github.com/jinnsei99/ullim/actions/runs/43032640026). Annotations가 `main`과 똑같고 `git diff origin/main -- js/`가 비어 있다.
 - 확인하지 못한 것: 14의 "견본을 연 뒤 콘솔 오류" 길(기록을 돌려주는 함수로 사건을 받는 곳)은 빨강 시험이 지나가지 않았다(`duck` 시험은 수만 바뀐다). 같은 사건 처리 코드는 13 빨강으로 확인됐다. 바깥 파일 경고(`::warning`)는 이번에 한 번도 나오지 않아 보지 못했다. `main` 푸시 점검(머지 뒤). 이 컴퓨터에는 Node가 없어 Actions에서만 돌렸다. 앱 파일이 바뀌지 않아 앱은 직접 열지 않았다(점검이 헤드리스 크롬으로 8화면을 열고 재생했다).
-- 인수인계: 다음 세션은 '다음 할 일' 1(PR #9 머지) → 2(0-15). 0-15 검사는 `lib/browser.mjs` 맨 위의 "쓰는 순서"를 따른다. 앱을 한 번 열어 여러 번 계산하는 모양은 14의 `run()`이 본보기이고, 오프라인 렌더는 `page.evaluate`로 페이지 안에서 돌린다(14의 `probe`처럼 함수를 글자로 보내면 된다). 결과 출력은 14 끝부분을 따라 쓴다.
+- 인수인계: 다음 세션은 '다음 할 일' 1(0-15)이다(PR #9는 위 기록대로 머지함). 0-15 검사는 `lib/browser.mjs` 맨 위의 "쓰는 순서"를 따른다. 앱을 한 번 열어 여러 번 계산하는 모양은 14의 `run()`이 본보기이고, 오프라인 렌더는 `page.evaluate`로 페이지 안에서 돌린다(14의 `probe`처럼 함수를 글자로 보내면 된다). 결과 출력은 14 끝부분을 따라 쓴다.
 
 ### 2026-11-11 — PR #7 머지
 - 한 일: 제품 책임자 요청으로 Claude가 PR #7(0-14)을 머지 커밋으로 합쳤다(빨강 시험 · 되돌린 커밋 기록이 남도록). `ci/check-old-projects` 브랜치는 지우지 않았다.

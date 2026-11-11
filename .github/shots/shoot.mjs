@@ -6,7 +6,7 @@
 // 매번 똑같이 찍히게(0-18 전후 비교용):
 //   어두운 화면(prefers-color-scheme: dark)으로 고정 · '움직임 줄이기'(prefers-reduced-motion)로 앱 CSS의 애니메이션 · 전환을 끔 ·
 //   재생하지 않음(재생 위치 맨 앞, 소리 막대 0) · 오디오가 켜진 뒤(상태 줄 '소리 켜기' 단추가 사라진 뒤) · 글꼴 4종과
-//   화면에 쓰인 글꼴 조각을 다 불러온 뒤 한 번 다시 그리고 · 창 · 알림 말풍선이 없을 때 · 매 프레임 그리기를 멈추고 글자 커서를
+//   화면에 쓰인 글꼴 조각을 다 받아 둔 뒤 다시 불러온 화면 · 창 · 알림 말풍선이 없을 때 · 매 프레임 그리기를 멈추고 글자 커서를
 //   숨긴 뒤에 찍는다. 크롬은 그림을 매번 똑같이 그리는 옵션(CHROME_FLAGS)으로 켠다.
 //   화면마다 빈 저장 공간에서 두 번 따로 열어 찍고, 두 그림이 파일까지 같아야 한다.
 // 빨강: 두 그림이 다름 · 글꼴을 다 못 불러옴 · 데모 곡이 아님 · 창이 남음 · 바라던 화면이 아님 · 콘솔 오류 · 크롬 없음 · 시간 초과.
@@ -50,9 +50,7 @@ const STATE = `(async () => {
     song: U.project.name, tracks: U.project.tracks.length, demoName: d.name, demoTracks: d.tracks.length,
     design: document.body.dataset.design, touch: document.documentElement.classList.contains('touch'), narrow: document.body.classList.contains('narrow') };
 })()`;
-// 글꼴이 다 온 뒤 앱을 한 번 다시 그린다. 캔버스(파형 눈금 등)는 처음 그릴 때 글꼴이 아직 없으면 대신 글꼴로 그리고
-// 글꼴이 와도 다시 그리지 않아서, 실행마다 글꼴이 다르게 찍혔다. 칸 다시 그리기 + 창 크기 바뀜 알림(패드 편집기 등이 듣는다)
-const REDRAW = `(() => { U.inval('all'); window.dispatchEvent(new Event('resize')); return true; })()`;
+const READY = `window.U && U.project && U.engine && document.querySelector('.tr.play')`;   // 앱 상태와 재생 단추가 생기면
 // 찍기 직전: 매 프레임 그리기(미터 · 재생 위치 · 깜빡임, js/ui-core.js loop)를 멈추고, 포커스를 풀고, 글자 커서를 숨긴다
 const FREEZE = `(() => {
   window.requestAnimationFrame = () => 0;
@@ -71,16 +69,17 @@ async function shootOnce(send, s, n) {
   let png = null, st = null;
   try {
     await send('Emulation.setEmulatedMedia', { features: MEDIA }, sid);
-    await openApp(send, page, { w: s.w, h: s.h, prefs: Object.assign({}, PREFS, s.prefs),
-      ready: `window.U && U.project && U.engine && document.querySelector('.tr.play')` });
-    await sleep(SETTLE_MS);
+    await openApp(send, page, { w: s.w, h: s.h, prefs: Object.assign({}, PREFS, s.prefs), ready: READY });
 
     // 가만해질 때까지: 오디오 켜짐 · 글꼴 다 불러옴(조각 수가 두 번 연속 같음) · 창 · 알림 없음.
-    // 가만해지면 한 번 다시 그리고(REDRAW), 다시 그리느라 새 글꼴 조각이 필요했을 수 있으니 한 번 더 기다린다
+    // 두 번 연다: 캔버스(패드 편집기 파형 눈금 등)는 처음 그릴 때 글꼴이 아직 없으면 대신 글꼴로 그리고 글꼴이 와도 다시 그리지
+    // 않아서, 처음 연 화면은 실행마다 글꼴이 달랐다. 그래서 한 번 열어 글꼴을 받아 두고(같은 저장 공간의 캐시), 다시 불러온 화면을
+    // 찍는다(글꼴을 이미 받은 사람이 다시 연 화면). 앱을 다시 그리게 하는 방법(U.inval · resize)은 앱 상태를 바꿔서 쓰지 않는다
     const want = { design: s.prefs.design, touch: s.prefs.uiMode === 'touch', narrow: s.w < (s.prefs.uiMode === 'desktop' ? 600 : 860) };
-    const until = Date.now() + STEADY_MS;
+    const until = Date.now() + STEADY_MS * 2;
     let steady = false;
     for (const round of [1, 2]) {
+      await sleep(SETTLE_MS);
       let lastFaces = -1;
       steady = false;
       while (!steady && Date.now() < until) {
@@ -90,7 +89,12 @@ async function shootOnce(send, s, n) {
         if (st.dialog) for (const type of ['keyDown', 'keyUp']) await send('Input.dispatchKeyEvent', { type, key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 }, sid);
         if (!steady) await sleep(300);
       }
-      if (round === 1 && steady) { await run(REDRAW); await sleep(600); }   // 창 크기 알림을 0.2초 늦게 받는 곳(ui-shell.js)까지
+      if (round === 2) break;
+      await send('Page.reload', {}, sid);
+      const back = Date.now() + 20000;
+      let open = false;
+      while (!open && Date.now() < back) { await sleep(200); open = await run(`!!(${READY})`).catch(() => false); }
+      if (!open) throw new Error('다시 불러온 앱이 20초 안에 열리지 않았다');
     }
     if (st.design !== want.design || st.touch !== want.touch || st.narrow !== want.narrow)
       rec.errors.push(`바라던 화면으로 열리지 않았다 (바란 것 ${JSON.stringify(want)} · 열린 것 ${JSON.stringify({ design: st.design, touch: st.touch, narrow: st.narrow })})`);
@@ -211,7 +215,7 @@ try {
   const c = await launchChrome(CHROME_FLAGS);
   if (!c) throw new Error('크롬을 찾지 못했다 (google-chrome · chromium. CHROME_PATH로 정할 수 있다)');
   const send = await connect(c.url, warnings);
-  chromeVer = (await send('Browser.getVersion')).product.replace('HeadlessChrome/', '크롬 ');
+  chromeVer = (await send('Browser.getVersion')).product.replace(/^(Headless)?Chrome\//, '크롬 ');
   console.log(`${chromeVer} (${c.bin}) · 앱 주소: ${origin}${BASE} · 저장: ${OUT}/`);
   for (const s of SHOTS) await shoot(send, s);
 } catch (err) {

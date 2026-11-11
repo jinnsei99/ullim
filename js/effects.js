@@ -650,7 +650,7 @@ class Spectrum extends AudioFx {
 
 Object.assign(U.DEVICE_CLASSES, {
   eq: EQ, comp: Compressor, limiter: Limiter, reverb: Reverb, delay: Delay, autofilter: AutoFilter,
-  sat: Saturator, chorus: Chorus, phaser: Phaser, utility: Utility, duck: Ducker, spectrum: Spectrum, amp: Amp
+  sat: Saturator, chorus: Chorus, phaser: Phaser, utility: Utility, pump: Ducker, spectrum: Spectrum, amp: Amp
 });
 U.AudioFx = AudioFx;
 })(window.U = window.U || {});

@@ -164,7 +164,7 @@ SOUNDS.push(
   { name: '리스 베이스', kind: 'polysynth', tags: ['베이스'], p: { w1: 'sawtooth', w2: 'sawtooth', o2: 0, d1: -18, d2: 18, l1: 0.8, l2: 0.8, ft: 'lp24', cut: 650, res: 0.18, fenv: 0.12, fa: 0.01, fd: 0.6, fs: 0.5, a: 0.008, d: 0.5, s: 1, r: 0.18, lfilt: 0.12, lrate: 0.35, mono: true, glide: 0.05, vel: 0.3, vol: -9 }, fx: [FX('chorus', { mix: 0.3, rate: 0.3, depth: 0.6 }), FX('sat', { type: 'soft', drive: 6, out: -5 })] },
   { name: '808 베이스', kind: 'polysynth', tags: ['베이스'], p: { w1: 'sine', w2: 'triangle', o2: 0, d2: 0, l1: 1, l2: 0.15, ft: 'lp12', cut: 1200, res: 0, fenv: 0, a: 0.003, d: 2.2, s: 0.25, r: 0.5, mono: true, glide: 0.08, vel: 0.3, vol: -4 }, fx: [FX('sat', { type: 'tube', drive: 9, out: -7, mix: 0.6 })] },
   { name: '후버', kind: 'polysynth', tags: ['리드'], p: { w1: 'sawtooth', w2: 'sawtooth', o2: -1, d1: -24, d2: 24, l1: 0.8, l2: 0.6, ft: 'lp24', cut: 3200, res: 0.12, fenv: 0.1, a: 0.01, d: 0.4, s: 0.9, r: 0.3, lpitch: 0.12, lrate: 5.5, mono: true, glide: 0.12, vol: -12 }, fx: [FX('chorus', { mix: 0.55, depth: 0.75, rate: 0.5 })] },
-  { name: '퓨처 베이스 코드', kind: 'polysynth', tags: ['코드'], p: { w1: 'sawtooth', w2: 'sawtooth', d1: -14, d2: 14, l1: 0.75, l2: 0.75, ft: 'lp24', cut: 3800, res: 0.1, fenv: 0.28, fa: 0.002, fd: 0.35, fs: 0.45, fr: 0.2, a: 0.004, d: 0.4, s: 0.85, r: 0.22, vel: 0.4, vol: -14 }, fx: [FX('pump', { div: '1/4', depth: 0.85, rel: 0.2 }), FX('chorus', { mix: 0.35 }), FX('reverb', { mix: 0.22, decay: 2.4 })] },
+  { name: '퓨처 베이스 코드', kind: 'polysynth', tags: ['코드'], p: { w1: 'sawtooth', w2: 'sawtooth', d1: -14, d2: 14, l1: 0.75, l2: 0.75, ft: 'lp24', cut: 3800, res: 0.1, fenv: 0.28, fa: 0.002, fd: 0.35, fs: 0.45, fr: 0.2, a: 0.004, d: 0.4, s: 0.85, r: 0.22, vel: 0.4, vol: -14 }, fx: [FX('duck', { div: '1/4', depth: 0.85, rel: 0.2 }), FX('chorus', { mix: 0.35 }), FX('reverb', { mix: 0.22, decay: 2.4 })] },
   { name: '신스 스탭', kind: 'polysynth', tags: ['코드'], p: { w1: 'sawtooth', w2: 'square', o2: 1, d2: 3, l1: 0.8, l2: 0.35, ft: 'lp12', cut: 1500, res: 0.22, fenv: 0.5, fa: 0.001, fd: 0.16, fs: 0, fr: 0.12, a: 0.001, d: 0.28, s: 0, r: 0.18, vel: 0.5, vol: -11 }, fx: [FX('delay', { mix: 0.16, divl: '1/8D' }), FX('reverb', { mix: 0.18 })] },
   { name: '로파이 건반', kind: 'fm', tags: ['키'], p: { algo: 'para', cw: 'sine', cr: 1, ar: 1, al: 0.25, aa: 0.002, ad: 1.2, as: 0.1, arl: 0.4, br: 14, bl: 0.06, bd: 0.08, bs: 0, a: 0.004, d: 2, s: 0.2, r: 0.5, cut: 5200, vel: 0.6, vol: -9 }, fx: [FX('chorus', { mode: 'vibrato', rate: 0.9, depth: 0.18 }), FX('sat', { type: 'crush', bits: 10, drive: 2, out: -3, mix: 0.35 }), FX('eq', { b6on: true, b6f: 6500 })] }
 );
@@ -363,7 +363,7 @@ const FX_PRESETS = {
   phaser: [['기본', {}], ['느린 페이저', { rate: 0.12, depth: 0.85, fb: 0.6 }]],
   utility: [['기본', {}], ['모노', { mono: true }], ['넓게 150%', { width: 1.5 }], ['-6 dB', { gain: -6 }]],
   limiter: [['기본', {}], ['마스터 크게', { gain: 6, ceil: -0.3 }]],
-  pump: [['1/4 펌핑', {}], ['1/8 빠른 펌핑', { div: '1/8', depth: 0.6, rel: 0.1 }], ['부드럽게', { depth: 0.45, rel: 0.35 }]],
+  duck: [['1/4 펌핑', {}], ['1/8 빠른 펌핑', { div: '1/8', depth: 0.6, rel: 0.1 }], ['부드럽게', { depth: 0.45, rel: 0.35 }]],
   spectrum: [['기본', {}]],
   amp: [['기본 (크런치)', {}], ['클린', { model: 'clean', gain: 3, cab: '2x12' }], ['블루스 드라이브', { model: 'blues', gain: 5, cab: '1x12' }], ['하드 록', { model: 'lead', gain: 6 }], ['리드 솔로', { model: 'lead', gain: 8, mid: 6.5, pres: 6 }], ['메탈', { model: 'metal', gain: 7, mid: 4 }], ['베이스 앰프', { model: 'bass', gain: 4, cab: '1x15' }]],
   arp: [['기본 (업 1/16)', {}], ['업다운 2옥타브', { style: 'updown', oct: 2 }], ['랜덤 1/8', { style: 'random', rate: '1/8', gate: 0.8 }], ['컨버지 1/16T', { style: 'converge', rate: '1/16T' }]],
@@ -674,7 +674,7 @@ function demoProject() {
   // 2 베이스: Am – F – C – G, 마디마다 근음
   const ba = U.addTrack(pr, 'midi', null, { name: '베이스', color: 0, devices: U.soundDevices(SOUNDS[3]) });
   ba.devices[0].p.vol = -2;
-  ba.devices.push(U.makeDevice('pump', { p: { depth: 0.55, rel: 0.16 } }));
+  ba.devices.push(U.makeDevice('duck', { p: { depth: 0.55, rel: 0.16 } }));
   const roots = [45, 41, 48, 43];
   const bassA = [], bassB = [];
   roots.forEach((r, i) => {

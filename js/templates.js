@@ -581,7 +581,6 @@ function genreProject(id) {
   for (const spec of g.tracks) {
     const t = U.addTrack(pr, spec.type || 'midi', null, { name: spec.name, color: spec.color, devices: devicesFor(spec) });
     t.vol = spec.vol || 0;
-    if (g.id === 'lofi') t.on = false;
     if (spec.pan) t.pan = spec.pan;
     t.sends = [spec.a != null ? spec.a : OFF, spec.b != null ? spec.b : OFF];
     t.slots = pr.scenes.map((sc, i) => {

@@ -24,15 +24,15 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
+      - uses: actions/checkout@v7
+      - uses: actions/configure-pages@v6
       - name: 올릴 파일 모으기
         run: |
           mkdir _site
           rsync -a --exclude '.git' --exclude '.github' --exclude '_site' ./ _site/
           echo "올릴 파일 $(find _site -type f | wc -l)개"
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

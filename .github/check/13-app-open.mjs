@@ -169,6 +169,15 @@ async function openScreen(send, s) {
     if (!open) throw new Error(`앱이 ${OPEN_MS / 1000}초 안에 열리지 않았다`);
     await sleep(SETTLE_MS);   // 저장된 곡 찾기 · 시작 창 · 안내처럼 열린 뒤 조금 있다 도는 일
 
+    // 바라던 화면 조합으로 열렸는지 (아니면 모두 A로 열려도 조용히 초록이 된다)
+    const p = s.prefs || { design: 'a', uiMode: 'desktop' };
+    const want = { design: p.design, touch: p.uiMode === 'touch', narrow: s.w < (p.uiMode === 'desktop' ? 600 : 860) };
+    const is = await run(`({ design: document.body.dataset.design, touch: document.documentElement.classList.contains('touch'),
+      narrow: document.body.classList.contains('narrow') })`);
+    if (is.design !== want.design || is.touch !== want.touch || is.narrow !== want.narrow) {
+      s.errors.push(`바라던 화면으로 열리지 않았다 (바란 것 ${JSON.stringify(want)} · 열린 것 ${JSON.stringify(is)})`);
+    }
+
     const got = await run(`(() => { const d = U.demoProject(); return { name: U.project.name, tracks: U.project.tracks.length,
       demoName: d.name, demoTracks: d.tracks.length, dialog: !!document.querySelector('.dlg-back') }; })()`);
     demo = demo || { name: got.demoName, tracks: got.demoTracks };

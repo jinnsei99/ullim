@@ -1,20 +1,19 @@
 # 울림 스튜디오 — 진행 기록
 
 ## 현재 상태 (2026-11-11)
-- 기능 폭은 넓다(README). 지금은 기능을 더하지 않고 기반을 다지는 중이다: [ROADMAP](ROADMAP.md) 단계 0. 0-A 문서와 0-B 저장소 분리는 끝났고, 0-C 자동 점검은 틀(0-10, PR [#1](https://github.com/jinnsei99/ullim/pull/1))과 점검 1 파일 목록(0-11, PR [#2](https://github.com/jinnsei99/ullim/pull/2)), 점검 2 JS 문법(0-12, PR [#4](https://github.com/jinnsei99/ullim/pull/4)), 점검 3 앱 열기(0-13, PR [#5](https://github.com/jinnsei99/ullim/pull/5))까지 `main`에 머지됐고 `main` 푸시 점검 · 배포가 초록이다. 점검 4 예전 프로젝트 열기(0-14)는 PR [#7](https://github.com/jinnsei99/ullim/pull/7)로 올렸고 초록 · 빨강 시험까지 끝났다(머지 전).
-- **점검: `main` 푸시 · PR마다 Actions의 '점검'이 `node .github/check/run.mjs`를 돌린다.** `main`의 검사는 3개(`11-file-list.mjs` · `12-js-syntax.mjs` · `13-app-open.mjs`)이고 PR #7이 머지되면 4개(`14-old-projects.mjs`)가 된다. 초록이면 실행 화면 Annotations 칸에 `파일 목록: js 43개 일치 (…)`, `JS 문법: 44개 파일 오류 0 (js/ 43 · sw.js 1)`, `앱 열기: 화면 8개 콘솔 오류 0 · 데모 곡 '새벽 네 시' 트랙 7개 불러옴 · 재생 8/8`, `예전 프로젝트: 견본 11개 모두 그대로 (…)`(+ 견본마다 한 줄)가 뜬다. 점검 한 번은 약 1분 10초(앱 열기 약 45초 · 예전 프로젝트 약 12초). 검사 더하는 법은 `.github/check/README.md`.
+- 기능 폭은 넓다(README). 지금은 기능을 더하지 않고 기반을 다지는 중이다: [ROADMAP](ROADMAP.md) 단계 0. 0-A 문서와 0-B 저장소 분리는 끝났고, 0-C 자동 점검은 틀(0-10, PR [#1](https://github.com/jinnsei99/ullim/pull/1))과 점검 1 파일 목록(0-11, PR [#2](https://github.com/jinnsei99/ullim/pull/2)), 점검 2 JS 문법(0-12, PR [#4](https://github.com/jinnsei99/ullim/pull/4)), 점검 3 앱 열기(0-13, PR [#5](https://github.com/jinnsei99/ullim/pull/5)), 점검 4 예전 프로젝트 열기(0-14, PR [#7](https://github.com/jinnsei99/ullim/pull/7))까지 했다. 모두 `main`에 머지됐고 `main` 푸시 점검 · 배포가 초록이다.
+- **점검: `main` 푸시 · PR마다 Actions의 '점검'이 `node .github/check/run.mjs`를 돌린다.** 검사는 4개(`11-file-list.mjs` · `12-js-syntax.mjs` · `13-app-open.mjs` · `14-old-projects.mjs`)이고, 초록이면 실행 화면 Annotations 칸에 `파일 목록: js 43개 일치 (…)`, `JS 문법: 44개 파일 오류 0 (js/ 43 · sw.js 1)`, `앱 열기: 화면 8개 콘솔 오류 0 · 데모 곡 '새벽 네 시' 트랙 7개 불러옴 · 재생 8/8`, `예전 프로젝트: 견본 11개 모두 그대로 (…)`(+ 견본마다 한 줄)가 뜬다. 점검 한 번은 약 1분 10초(앱 열기 약 45초 · 예전 프로젝트 약 12초). 검사 더하는 법은 `.github/check/README.md`.
 - **저장소: `jinnsei99/ullim`(공개), 주소: https://jinnsei99.github.io/ullim/**. `main`에 푸시하면 `.github/workflows/pages.yml`이 Pages에 올린다.
 - **작업 폴더: 이 컴퓨터 바탕화면의 `ullim` 폴더**(이 저장소의 클론). 앞으로 모든 울림 작업은 여기서 한다. 바탕화면 `jinnsei` 클론은 옛 저장소(가계부 · 옛 주소 안내)용이다.
 - 옛 주소 `/jinnsei/ullim/`은 새 주소로 넘어간다(옛 저장소 PR [jinnsei99/jinnsei#42](https://github.com/jinnsei99/jinnsei/pull/42)). 컴퓨터 · 아이패드에서 제품 책임자가 확인했다.
 - 정한 것: 디자인 규칙은 토큰이 생기는 만큼 단계적으로 엄격하게 한다(`CLAUDE.md` '디자인 규칙').
 
 ## 다음 할 일
-1. (제품 책임자) PR [#7](https://github.com/jinnsei99/ullim/pull/7)(0-14)을 보고 머지할지 정한다. 머지하면 `main` 푸시 점검 · 배포가 초록인지 보고 기록한다.
-2. 0-15 점검 5: 장르 템플릿 10종 4마디 오프라인 렌더. 크롬이 필요하므로 13 · 14의 웹 서버 · 크롬 켜기 · CDP 부분을 쓴다(셋째 복사가 되므로 그 전에 `.github/check/lib/`로 모으는 것을 제안할 만하다. IDEAS에 적어 둠). 템플릿은 `U.GENRES` · `U.genreProject(id)`.
-3. (작게, 아무 때나) 배포 워크플로의 액션을 Node 24용 새 버전으로 올린다. 점검 워크플로는 이미 `checkout@v7` · `setup-node@v7`(둘 다 Node 24, 2026-11-10 기준 최신)을 쓴다.
+1. 0-15 점검 5: 장르 템플릿 10종 4마디 오프라인 렌더. 크롬이 필요하므로 13 · 14의 웹 서버 · 크롬 켜기 · CDP 부분을 쓴다(셋째 복사가 되므로 그 전에 `.github/check/lib/`로 모으는 것을 제안할 만하다. IDEAS에 적어 둠). 템플릿은 `U.GENRES` · `U.genreProject(id)`.
+2. (작게, 아무 때나) 배포 워크플로의 액션을 Node 24용 새 버전으로 올린다. 점검 워크플로는 이미 `checkout@v7` · `setup-node@v7`(둘 다 Node 24, 2026-11-10 기준 최신)을 쓴다.
 
 ## 알려진 문제
-- 자동 점검은 검사가 3개(js 파일 목록 · JS 문법 · 앱 열기), PR #7이 머지되면 4개(+ 예전 프로젝트)다. 템플릿 소리는 아직 사람이 귀로 찾아야 한다(단계 0-C 0-15).
+- 자동 점검은 검사가 4개(js 파일 목록 · JS 문법 · 앱 열기 · 예전 프로젝트)다. 템플릿 소리는 아직 사람이 귀로 찾아야 한다(단계 0-C 0-15).
   - JS 문법 검사는 Node(크롬과 같은 엔진)가 읽을 수 있으면 통과시킨다. 아이패드 사파리가 아직 모르는 새 문법을 써도 초록이므로, 그런 실수는 아이패드에서 직접 열어 봐야 안다.
   - `js/engine.js` 617줄 근처에 문자열로 들어 있는 Web Worker 코드 한 줄(스케줄러 타이머)은 문법 검사가 보지 않는다(문자열이라). 대신 0-13 앱 열기가 화면마다 재생해서 스케줄러가 앞으로 가는지 본다(지금 2초에 3.9박).
   - 앱 열기 검사는 크롬에서만 연다. "아이패드 버전"은 앱 설정(`uiMode: 'touch'`)으로 고른 화면이고 진짜 사파리 · 손가락이 아니다. 클릭은 마우스로 한다. 화면마다 여는 것 · 데모 곡 · 재생 2초까지만 보고, 다른 단추 · 메뉴 · 서비스 워커 등록 · 오프라인은 보지 않는다.
@@ -38,6 +37,11 @@
 
 ## 날짜별 기록
 
+### 2026-11-11 — PR #7 머지
+- 한 일: 제품 책임자 요청으로 Claude가 PR #7(0-14)을 머지 커밋으로 합쳤다(빨강 시험 · 되돌린 커밋 기록이 남도록). `ci/check-old-projects` 브랜치는 지우지 않았다.
+- 확인: 머지 뒤 `main` 푸시의 '점검'([실행](https://github.com/jinnsei99/ullim/actions/runs/43025924586)) · '사이트 배포'([실행](https://github.com/jinnsei99/ullim/actions/runs/43025924559))가 초록이었다. 점검 Annotations에 네 줄(… · `예전 프로젝트: 견본 11개 모두 그대로 (트랙 · 장치 · 클립 수 바뀐 것 0 · 오류 0)`)이 떴다. 실제 사이트에서 `/ullim/` · `index.html` · `sw.js`는 200, `.github/check/14-old-projects.mjs` · `projects/README.md`는 404였다. 견본 `projects/2026-11-11/demo.ullim.json`은 배포 직후 503이 몇 번 나온 뒤 404였고, 내용이 나온 적은 없다.
+- 확인하지 못한 것: 앱은 사이트에서 직접 열어 재생해 보지 않았다(앱 파일은 바뀌지 않았고, `main` 점검이 헤드리스 크롬으로 열고 재생했다).
+
 ### 2026-11-11 — 점검 4 예전 프로젝트 열기 (0-14, PR #7)
 - 한 일: `main`(2e4be66)에서 `ci/check-old-projects` 브랜치를 만들었다. `.github/check/14-old-projects.mjs`(점검), 견본 11개 `.github/check/projects/2026-11-11/*.ullim.json`, 견본 규칙 · 만드는 법 `.github/check/projects/README.md`를 더했다(PR #7, 받는 쪽은 `main`).
   - 견본: 데모 곡 '새벽 네 시'(`demo`)와 장르 템플릿 10종(`genre-house` … `genre-flip`). 이 컴퓨터에서 앱을 띄우고 Claude 앱 안 브라우저에서 `U.files.build(U.normalize(U.demoProject() / U.genreProject(id)))`로 만들었다. 앱의 '파일로 저장'과 같은 함수라 사람이 저장한 파일과 같다. 개인 프로젝트는 넣지 않았다. 모두 `media`가 비어 있고(`user:` 소리 없음), 합쳐 약 750KB다. `.github` 안이라 사이트에 올라가지 않는다.
@@ -51,8 +55,8 @@
   - 되돌림: `git revert`(이번에도 "This reverts commit …" 줄을 남겼다) 뒤 다시 초록 [실행](https://github.com/jinnsei99/ullim/actions/runs/43025018857). `git diff origin/main -- js/`가 비어 있음을 확인했다.
   - 초록 · 빨강 실행 화면 Annotations 칸의 요약은 로그인하지 않은 브라우저(Claude 앱 안 브라우저, "Sign in to view logs"가 뜨는 상태)로 확인했다.
 - 앱에서 찾은 문제: 없다. 견본 11개가 모두 오류 없이 열리고 수가 그대로였다.
-- 확인하지 못한 것: `main` 푸시로 도는 점검(머지 뒤 처음 돈다). 사용자 오디오가 담긴 파일 열기(위 알려진 문제). 이 컴퓨터에는 Node가 없어 검사는 Actions에서만 돌렸다(검사 안에서 쓰는 셈 코드는 앱 안 브라우저에서 먼저 시험했다).
-- 인수인계: 다음 세션은 '다음 할 일' 1(PR #7 머지 확인) → 2(0-15)다. 견본을 더하는 법은 `.github/check/projects/README.md`(콘솔에 붙여 넣는 코드가 있다). 검사에 견본 폴더를 따로 적을 필요는 없다(`projects/` 아래 날짜 폴더를 모두 읽는다).
+- 확인하지 못한 것: `main` 푸시로 도는 점검(→ 위 머지 기록에서 확인함). 사용자 오디오가 담긴 파일 열기(위 알려진 문제). 이 컴퓨터에는 Node가 없어 검사는 Actions에서만 돌렸다(검사 안에서 쓰는 셈 코드는 앱 안 브라우저에서 먼저 시험했다).
+- 인수인계: 다음 세션은 '다음 할 일' 1(0-15)이다. 견본을 더하는 법은 `.github/check/projects/README.md`(콘솔에 붙여 넣는 코드가 있다). 검사에 견본 폴더를 따로 적을 필요는 없다(`projects/` 아래 날짜 폴더를 모두 읽는다).
 
 ### 2026-11-11 — PR #4 · #5 머지
 - 한 일: 제품 책임자 요청으로 Claude가 PR #4(0-12) → PR #5(0-13) 순서로 머지 커밋으로 합쳤다(빨강 시험 · 되돌린 커밋 기록이 남도록). `ci/check-js-syntax` · `ci/check-app-open` 브랜치는 지우지 않았다.

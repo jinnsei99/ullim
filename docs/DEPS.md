@@ -329,7 +329,7 @@ script 순서로 뒤에 읽히는 파일이 앞 값을 덮어쓸 수 있다. '(�
 | `U.shapeKnob` | `ui-shape.js` | `input.js` (1) |
 | `U.shapeMacros` | `ui-shape.js` | — |
 | `U.shapePanel` | `ui-shape.js` | `ui-shell.js` · `ui-devices.js` (2) |
-| `U.shell` | `ui-shell.js` | `quick.js` · `ui-start.js` · `main.js` (3) |
+| `U.shell` | `ui-shell.js` | `quick.js` · `main.js` (2) |
 | `U.showClip` | `ui-core.js` | `actions.js` · `ui-session.js` · `ui-arrange.js` (3) |
 | `U.sleep` | `util.js` | `store.js` (1) |
 | `U.smooth` | `dsp.js` | `instruments.js` · `effects.js` · `acoustic.js` · `engine.js` (4) |

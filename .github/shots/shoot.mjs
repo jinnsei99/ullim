@@ -17,10 +17,14 @@
 import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
-import { inflateSync } from 'node:zlib';
+import { decodePng } from './png.mjs';
 import { BASE, connect, launchChrome, newPage, openApp, sleep, startServer, stop } from '../check/lib/browser.mjs';
 
-const OUT = '_shots';   // 저장소 맨 위 기준. 워크플로가 이 폴더를 올린다(커밋하지 않는다)
+// 저장할 폴더. 기본은 저장소 맨 위 기준 _shots(워크플로가 올린다. 커밋하지 않는다). 전후 비교(0-18)의 '전' 촬영은 SHOT_OUT으로 바꾼다.
+// 찍는 앱 파일은 지금 폴더(cwd)의 것이다(../check/lib/browser.mjs가 cwd를 띄운다). SHOT_LABEL(전 · 후)은 결과 제목에 붙는다
+const OUT = process.env.SHOT_OUT || '_shots';
+const LABEL = process.env.SHOT_LABEL ? ` · ${process.env.SHOT_LABEL}` : '';
+const TITLE = `화면 촬영 0-16 · 0-17${LABEL}`;
 const SETTLE_MS = 1500, STEADY_MS = 15000, ALL_MS = 300000;
 const PREFS = { welcomed: true, designIntro: true };   // 시작 창 · 디자인 안내를 건너뛴다(0-13과 같음)
 const FONTS = ['Black Han Sans', 'IBM Plex Mono', 'IBM Plex Sans Condensed', 'IBM Plex Sans KR'];   // index.html이 구글 글꼴에서 받는 4종
@@ -136,32 +140,7 @@ async function shoot(send, s) {
   rows.push({ file: s.file, name: s.name, scheme: s.scheme, hash: hash(a.png), kb: Math.round(a.png.length / 1024), same, faces: a.faces });
 }
 
-// 두 그림이 다를 때 어디가 얼마나 다른지: PNG를 풀어(크롬이 만든 8비트 RGB · RGBA만) 점마다 비교한다
-function decodePng(buf) {
-  let i = 8, w = 0, h = 0, bpp = 0;
-  const idat = [];
-  while (i < buf.length) {
-    const n = buf.readUInt32BE(i), type = buf.toString('latin1', i + 4, i + 8), c = buf.subarray(i + 8, i + 8 + n);
-    if (type === 'IHDR') {
-      w = c.readUInt32BE(0); h = c.readUInt32BE(4);
-      bpp = { 2: 3, 6: 4 }[c[9]];
-      if (c[8] !== 8 || !bpp) throw new Error('모르는 PNG 형식');
-    } else if (type === 'IDAT') idat.push(c);
-    i += 12 + n;
-  }
-  const raw = inflateSync(Buffer.concat(idat)), stride = w * bpp, rows = [];
-  let prev = Buffer.alloc(stride);
-  for (let y = 0, p = 0; y < h; y++, p += stride + 1) {
-    const f = raw[p], line = Buffer.from(raw.subarray(p + 1, p + 1 + stride));
-    for (let x = 0; x < stride; x++) {
-      const a = x >= bpp ? line[x - bpp] : 0, b = prev[x], c = x >= bpp ? prev[x - bpp] : 0;
-      const pa = Math.abs(b - c), pb = Math.abs(a - c), pc = Math.abs(a + b - 2 * c);
-      line[x] = (line[x] + [0, a, b, (a + b) >> 1, pa <= pb && pa <= pc ? a : pb <= pc ? b : c][f]) & 255;
-    }
-    rows.push(line); prev = line;
-  }
-  return { w, h, bpp, rows };
-}
+// 두 그림이 다를 때 어디가 얼마나 다른지: PNG를 풀어(png.mjs) 점마다 비교한다
 function pixelDiff(p1, p2) {
   const A = decodePng(p1), B = decodePng(p2);
   if (A.w !== B.w || A.h !== B.h) return `크기가 다름 ${A.w}×${A.h} · ${B.w}×${B.h}`;
@@ -184,8 +163,8 @@ let chromeVer = '';
 function report() {
   const allSame = rows.length === SHOTS.length && rows.every(r => r.same);
   const lines = problems.length
-    ? [`화면 촬영: 문제 ${problems.length}개 (찍은 그림 ${rows.length}/${SHOTS.length}장)`, ...problems.map(p => `  - ${p}`)]
-    : [`화면 촬영: ${rows.length}장 (${SCHEMES.map(c => `${c.name} ${rows.filter(r => r.scheme === c.id).length}`).join(' · ')}) · 화면마다 두 번 찍어 ${allSame ? '모두 같음' : '다른 것 있음'} · 글꼴 ${FONTS.length}종 불러옴 · ${chromeVer}`];
+    ? [`화면 촬영${LABEL}: 문제 ${problems.length}개 (찍은 그림 ${rows.length}/${SHOTS.length}장)`, ...problems.map(p => `  - ${p}`)]
+    : [`화면 촬영${LABEL}: ${rows.length}장 (${SCHEMES.map(c => `${c.name} ${rows.filter(r => r.scheme === c.id).length}`).join(' · ')}) · 화면마다 두 번 찍어 ${allSame ? '모두 같음' : '다른 것 있음'} · 글꼴 ${FONTS.length}종 불러옴 · ${chromeVer}`];
   const detail = rows.map(r => `  ${r.same ? '✓' : '✗'} ${r.file}  ${r.hash}  ${r.kb}KB  글꼴 조각 ${r.faces}개`);
   const warn = warnings.map(w => `  ! 경고 · ${w}`);
   (problems.length ? console.error : console.log)([...lines, ...detail, ...warn].join('\n'));
@@ -198,9 +177,9 @@ function report() {
     const data = s => s.replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A');
     const prop = s => data(s).replace(/:/g, '%3A').replace(/,/g, '%2C');
     console.log(problems.length
-      ? `::error title=${prop('화면 촬영 0-16 · 0-17')}::${data(lines.join('\n'))}`
-      : `::notice title=${prop('화면 촬영 0-16 · 0-17')}::${data([lines[0], ...rows.map(r => `${r.file} ${r.hash}`)].join('\n'))}`);
-    if (warnings.length) console.log(`::warning title=${prop('화면 촬영 0-16 · 0-17')}::${data(warnings.join('\n'))}`);
+      ? `::error title=${prop(TITLE)}::${data(lines.join('\n'))}`
+      : `::notice title=${prop(TITLE)}::${data([lines[0], ...rows.map(r => `${r.file} ${r.hash}`)].join('\n'))}`);
+    if (warnings.length) console.log(`::warning title=${prop(TITLE)}::${data(warnings.join('\n'))}`);
   }
   if (process.env.GITHUB_STEP_SUMMARY) {
     const table = ['| 그림 | 화면 | 지문 | 크기 | 두 번 같음 |', '|---|---|---|---|---|',

@@ -27,3 +27,21 @@ jobs:
           node-version: 24
       - name: 검사 모두 돌리기
         run: node .github/check/run.mjs
+      # 0-19: docs/DEPS.md가 코드와 다르면 19-deps.mjs가 새 지도를 $RUNNER_TEMP/deps/DEPS.md에 써 둔다. 그것을 Artifacts로 올린다.
+      # PR에서는 PR과 main을 합친 코드로 만든 지도다(점검이 그 합친 코드를 돈다). 이름의 커밋은 PR의 마지막 커밋.
+      - name: 새 U 이름 지도 이름 정하기
+        id: deps
+        if: failure()
+        env:
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          if [ -f "$RUNNER_TEMP/deps/DEPS.md" ]; then
+            echo "name=deps-${SHA::7}-${{ github.run_attempt }}" >> "$GITHUB_OUTPUT"
+          fi
+      - name: 새 U 이름 지도 올리기
+        if: failure() && steps.deps.outputs.name
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.deps.outputs.name }}
+          path: ${{ runner.temp }}/deps/DEPS.md
+          if-no-files-found: error

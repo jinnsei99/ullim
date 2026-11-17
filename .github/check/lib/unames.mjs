@@ -162,7 +162,8 @@ function carriesOn(toks, from, name) {
 //     가. 그 자리에서 바로 부르는 함수 `(function () { })()` · `(() => { })()` (파일을 감싼 껍데기도 이것)
 //     나. 배열을 그 자리에서 도는 함수(RUNS_NOW: forEach · map …)에 넘긴 함수
 //     다. 같은 파일에서 이름 붙인 함수(`function f() {}` · `const f = () => …`)를 읽는 순간에 부르면 그 몸통(끝까지 따라간다)
-//   보지 않는 것: 다른 파일의 함수(`U.이름()`)를 읽는 순간 부를 때 그 함수의 안, 함수 머리의 기본값(`(a = U.x) =>`)은 읽는 순간으로 셈
+//   보지 않는 것: 다른 파일의 함수(`U.이름()`)를 읽는 순간 부를 때 그 함수의 안.
+//   엄격한 쪽으로 세는 것: 함수 머리의 기본값(`(a = U.x) =>`)은 읽는 순간으로 센다.
 const CONTROL = new Set(['if', 'for', 'while', 'switch', 'catch', 'with']);
 const RUNS_NOW = new Set(['forEach', 'map', 'filter', 'reduce', 'reduceRight', 'some', 'every', 'find', 'findIndex',
   'findLast', 'findLastIndex', 'flatMap', 'sort', 'from']);

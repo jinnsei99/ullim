@@ -4,7 +4,7 @@
 // (기본: Actions의 $RUNNER_TEMP/deps)에 써 두고, check.yml이 그것을 Artifacts `deps-커밋-시도`로 올린다.
 // 고치는 법: 그 Artifacts의 DEPS.md를 받아 docs/DEPS.md에 덮어쓰고 커밋한다. Node가 있으면 `node .github/check/19-deps.mjs --write`.
 // 표에 날짜 · 커밋 · 줄 번호를 넣지 않으므로, U 이름을 붙이거나 쓰는 파일이 바뀔 때만 다시 만들면 된다.
-// 이 검사는 순서 어김(읽는 순간 꺼내는 이름이 뒤 파일에서 만들어짐)은 보지 않는다(ROADMAP 0-20).
+// 이 검사는 순서 어김(읽는 순간 꺼내는 이름이 뒤 파일에서 만들어짐)은 보지 않는다. 그것은 20-order.mjs(ROADMAP 0-20)가 본다.
 import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';

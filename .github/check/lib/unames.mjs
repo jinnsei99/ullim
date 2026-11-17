@@ -6,6 +6,7 @@
 //   씀:   그 밖의 `U.이름`(`U.이름.속 = …`, `U.이름(…)`, `U?.이름` 포함), `const { 이름, 이름: 별명 } = U`(읽는 순간 꺼냄 = take)
 //   `window.U.이름`도 `U.이름`과 같이 센다. 함수 머리의 `(U)`와 `window.U = window.U || {}`는 세지 않는다.
 //   그 밖에 `U`를 통째로 쓰는 곳(`U[이름]`, 다른 이름에 담기, 넘기기)은 이름을 알 수 없어서 `others`에 줄 번호만 모은다.
+//   만듦 · 씀마다 `now`가 붙는다: 파일이 읽히는 순간 실행되는 자리면 true, 함수 안이라 불릴 때 실행되면 false(`whenRead`, 0-20).
 
 const ASSIGN = new Set(['=', '+=', '-=', '*=', '/=', '%=', '**=', '<<=', '>>=', '>>>=', '&=', '|=', '^=', '&&=', '||=', '??=']);
 const PUNCT = ['>>>=', '...', '===', '!==', '**=', '<<=', '>>=', '>>>', '&&=', '||=', '??=',
@@ -152,10 +153,134 @@ function carriesOn(toks, from, name) {
   return false;
 }
 
-// 파일 하나: { makes: [{ name, line, carries }], uses: [{ name, line, take }], others: [줄] }
+// ---- 읽는 순간인가 (ROADMAP 0-20) ----
+// 앱 JS는 index.html script 순서대로 읽히면서 바로 실행된다. 이때 실행되는 자리(읽는 순간)와
+// 함수 몸통이라 나중에 불릴 때 실행되는 자리를 낱말마다 가른다.
+//   나중: `function 이름() { }` · `() => { }` · `() => 값` · 객체 · 클래스의 메서드 · 클래스 몸통의 안
+//   읽는 순간: 그 밖의 모든 자리(파일 맨 위, if · for 블록, 객체 { }, `class A extends U.B`의 extends 부분)
+//   함수지만 읽는 순간으로 보는 것:
+//     가. 그 자리에서 바로 부르는 함수 `(function () { })()` · `(() => { })()` (파일을 감싼 껍데기도 이것)
+//     나. 배열을 그 자리에서 도는 함수(RUNS_NOW: forEach · map …)에 넘긴 함수
+//     다. 같은 파일에서 이름 붙인 함수(`function f() {}` · `const f = () => …`)를 읽는 순간에 부르면 그 몸통(끝까지 따라간다)
+//   보지 않는 것: 다른 파일의 함수(`U.이름()`)를 읽는 순간 부를 때 그 함수의 안.
+//   엄격한 쪽으로 세는 것: 함수 머리의 기본값(`(a = U.x) =>`)은 읽는 순간으로 센다.
+const CONTROL = new Set(['if', 'for', 'while', 'switch', 'catch', 'with']);
+const RUNS_NOW = new Set(['forEach', 'map', 'filter', 'reduce', 'reduceRight', 'some', 'every', 'find', 'findIndex',
+  'findLast', 'findLastIndex', 'flatMap', 'sort', 'from']);
+
+// 낱말 목록 → 낱말마다 읽는 순간이면 true
+export function whenRead(toks) {
+  const n = toks.length;
+  const match = new Array(n).fill(-1), parent = new Array(n).fill(-1), stack = [];
+  for (let i = 0; i < n; i++) {
+    parent[i] = stack.length ? stack[stack.length - 1] : -1;
+    const tok = toks[i];
+    if (tok.t !== 'p') continue;
+    if (OPEN[tok.v]) stack.push(i);
+    else if (CLOSE.has(tok.v)) {
+      const o = stack.pop();
+      if (o === undefined || OPEN[toks[o].v] !== tok.v) throw new Error(`${tok.line}번째 줄: 괄호 짝이 맞지 않음`);
+      match[o] = i; match[i] = o; parent[i] = parent[o];
+    }
+  }
+  if (stack.length) throw new Error(`${toks[stack[stack.length - 1]].line}번째 줄: 괄호가 닫히지 않음`);
+
+  // 클래스 몸통의 { (`class 이름 extends … {`). `{ class: 'x' }` · `.class`는 클래스가 아니다
+  const classBody = new Set();
+  for (let c = 0; c < n; c++) {
+    if (!isId(toks[c], 'class') || isP(toks[c + 1], ':') || isP(toks[c - 1], '.') || isP(toks[c - 1], '?.')) continue;
+    let i = c + 1;
+    while (i < n && !isP(toks[i], '{')) { if (toks[i].t === 'p' && OPEN[toks[i].v]) i = match[i]; i++; }
+    if (i < n) classBody.add(i);
+  }
+  // `=> 값`의 값이 끝나는 낱말: 같은 깊이의 `,` `;`, 짝 없는 `:`(`조건 ? () => 값 : 다른 값`), 감싼 괄호가 닫힘, 또는 세미콜론 없이 줄이 바뀜
+  const valueEnd = s => {
+    let ask = 0;
+    for (let i = s; i < n; i++) {
+      const tok = toks[i], before = toks[i - 1];
+      if (i > s && tok.line > before.line && (before.t !== 'p' || CLOSE.has(before.v)) && !(tok.t === 'p' && GOES_ON.has(tok.v))) return i - 1;
+      if (tok.t === 'p' && OPEN[tok.v]) { i = match[i]; continue; }
+      if (isP(tok, '?')) ask++;
+      else if (isP(tok, ':') && ask-- === 0) return i - 1;
+      if (tok.t === 'p' && (CLOSE.has(tok.v) || tok.v === ',' || tok.v === ';')) return i - 1;
+    }
+    return n - 1;
+  };
+
+  // 함수 몸통 찾기: { s, e(몸통 첫 · 끝 낱말), start(함수가 시작하는 낱말), kind, names }
+  const fns = [];
+  for (let j = 0; j < n; j++) {
+    const tok = toks[j];
+    if (isP(tok, '=>')) {
+      let start = isP(toks[j - 1], ')') ? match[j - 1] : j - 1;
+      if (isId(toks[start - 1], 'async')) start--;
+      fns.push(isP(toks[j + 1], '{') ? { s: j + 1, e: match[j + 1], start, kind: 'arrow' } : { s: j + 1, e: valueEnd(j + 1), start, kind: 'arrow' });
+      continue;
+    }
+    if (!isP(tok, '{')) continue;
+    if (classBody.has(j)) { fns.push({ s: j, e: match[j], start: j, kind: 'class' }); continue; }
+    if (!isP(toks[j - 1], ')')) continue; // 함수가 아닌 { } (블록 · 객체)
+    const o = match[j - 1], k = toks[o - 1];
+    if (isId(k) && CONTROL.has(k.v)) continue; // if (…) {
+    if (isId(k, 'await') && isId(toks[o - 2], 'for')) continue; // for await (…) {
+    let start = o - 1, kind = 'method'; // 객체 · 클래스의 `이름(…) {`
+    if (isId(k, 'function')) kind = 'function';
+    else if (isP(k, '*') && isId(toks[o - 2], 'function')) { kind = 'function'; start = o - 2; }
+    else if (isId(k) && isId(toks[o - 2], 'function')) { kind = 'function'; start = o - 2; }
+    else if (isId(k) && isP(toks[o - 2], '*') && isId(toks[o - 3], 'function')) { kind = 'function'; start = o - 3; }
+    if (kind === 'function' && isId(toks[start - 1], 'async')) start--;
+    const names = kind === 'function' && isId(k) && k.v !== 'function' ? [k.v] : [];
+    fns.push({ s: j, e: match[j], start, kind, names });
+  }
+
+  // 바로 실행되는 함수인가
+  for (const f of fns) {
+    f.now = false;
+    f.names = f.names || [];
+    if (f.kind === 'class' || f.kind === 'method') continue;
+    const a = f.e + 1;
+    // 가. function () { }() · (function () { })() · (() => { })() · ( … ).call(…)
+    if (f.kind === 'function' && isP(toks[a], '(')) { f.now = true; continue; }
+    if (isP(toks[a], ')') && match[a] === f.start - 1 &&
+      (isP(toks[a + 1], '(') || (isP(toks[a + 1], '.') && (isId(toks[a + 2], 'call') || isId(toks[a + 2], 'apply'))))) { f.now = true; continue; }
+    // 나. 목록.forEach(함수) · 목록.map(…, 함수)
+    const p = parent[f.start];
+    if (p >= 0 && isP(toks[p], '(') && (isP(toks[f.start - 1], '(') || isP(toks[f.start - 1], ',')) &&
+      isId(toks[p - 1]) && RUNS_NOW.has(toks[p - 1].v) && (isP(toks[p - 2], '.') || isP(toks[p - 2], '?.'))) { f.now = true; continue; }
+    // 다를 위해 이름: const 이름 = (…) => … · const 이름 = function …
+    if (isP(toks[f.start - 1], '=') && isId(toks[f.start - 2]) && ['const', 'let', 'var'].includes(toks[f.start - 3] && toks[f.start - 3].v)) f.names.push(toks[f.start - 2].v);
+  }
+  // 다. 이름을 부르는 자리: 이름( … ) — `.이름(`, 함수 머리 `function 이름(`, 메서드 정의 `이름() {`는 빼고
+  const calls = new Map();
+  for (let i = 0; i < n; i++) {
+    if (!isId(toks[i]) || !isP(toks[i + 1], '(')) continue;
+    const b = toks[i - 1];
+    if (isP(b, '.') || isP(b, '?.') || isId(b, 'function') || isP(b, '*') || isP(toks[match[i + 1] + 1], '{')) continue;
+    if (!calls.has(toks[i].v)) calls.set(toks[i].v, []);
+    calls.get(toks[i].v).push(i);
+  }
+  const flags = () => {
+    const now = new Array(n).fill(true);
+    for (const f of fns) if (!f.now) for (let i = f.s; i <= f.e; i++) now[i] = false;
+    return now;
+  };
+  let now = flags();
+  for (let changed = true; changed;) {
+    changed = false;
+    for (const f of fns) {
+      if (f.now || !f.names.length) continue;
+      if (f.names.some(name => (calls.get(name) || []).some(i => now[i]))) { f.now = true; changed = true; }
+    }
+    if (changed) now = flags();
+  }
+  return now;
+}
+
+// 파일 하나: { makes: [{ name, line, carries, now }], uses: [{ name, line, take, now }], others: [줄] }
 export function scanSource(src) {
   const toks = tokenize(src.replace(/^﻿/, ''));
   const makes = [], uses = [], others = [];
+  const now = whenRead(toks);
   for (let i = 0; i < toks.length; i++) {
     if (!isId(toks[i], 'U')) continue;
     const prev = toks[i - 1], next = toks[i + 1];
@@ -165,22 +290,22 @@ export function scanSource(src) {
     }
     if ((isP(next, '.') || isP(next, '?.')) && isId(toks[i + 2])) {
       const name = toks[i + 2].v, op = toks[i + 3];
-      if (op && op.t === 'p' && ASSIGN.has(op.v)) makes.push({ name, line: toks[i].line, carries: carriesOn(toks, i + 4, name) });
-      else uses.push({ name, line: toks[i].line, take: false });
+      if (op && op.t === 'p' && ASSIGN.has(op.v)) makes.push({ name, line: toks[i].line, carries: carriesOn(toks, i + 4, name), now: now[i] });
+      else uses.push({ name, line: toks[i].line, take: false, now: now[i] });
       continue;
     }
     // (function (U) {
     if (isP(prev, '(') && isId(toks[i - 2], 'function') && isP(next, ')')) continue;
     // Object.assign(U, { … })
     if (isP(prev, '(') && isId(toks[i - 2], 'assign') && isP(toks[i - 3], '.') && isId(toks[i - 4], 'Object') && isP(next, ',') && isP(toks[i + 2], '{')) {
-      for (const key of braceKeys(toks, i + 2).keys) makes.push({ name: key.name, line: key.line, carries: false });
+      for (const key of braceKeys(toks, i + 2).keys) makes.push({ name: key.name, line: key.line, carries: false, now: now[i] });
       continue;
     }
     // const { a, b: c } = U;
     if (isP(prev, '=') && isP(toks[i - 2], '}') && !isP(next, '[') && !isP(next, '(')) {
       const open = openOf(toks, i - 2);
       if (open >= 0) {
-        for (const key of braceKeys(toks, open).keys) uses.push({ name: key.name, line: key.line, take: true });
+        for (const key of braceKeys(toks, open).keys) uses.push({ name: key.name, line: key.line, take: true, now: now[i] });
         continue;
       }
     }
@@ -252,6 +377,48 @@ export function buildMap(files) {
     unused: list.filter(e => e.makers.length > 0 && e.users.length === 0),
     others,
   };
+}
+
+// 순서 어김 (ROADMAP 0-20): 파일 여럿([{ label, src }], index.html script 순서대로)을 받아,
+// 읽는 순간 읽는 `U.이름`마다 그보다 앞 파일이 그 이름을 읽는 순간 만들었는지 본다. 자기 파일이 만드는 이름은 보지 않는다.
+// 돌려주는 것: { problems: [{ file, pos, line, name, take, kind, makers }], groups(파일 · 줄 · 까닭으로 묶음), reads, names, files }
+//   kind: 'after'(만드는 파일이 뒤에 있음) · 'later'(함수 안에서만 만듦) · 'none'(만드는 곳 없음). pos · makers의 번호는 1부터 센 script 순서
+export function findOrder(files) {
+  const scans = files.map(f => {
+    try { return f.scan || scanSource(f.src); } catch (err) { throw new Error(`${f.label}: ${err.message}`); }
+  });
+  const madeNow = new Map(), madeLater = new Map();
+  scans.forEach((s, k) => {
+    for (const m of s.makes) {
+      const at = m.now ? madeNow : madeLater;
+      if (!at.has(m.name)) at.set(m.name, []);
+      if (!at.get(m.name).includes(k)) at.get(m.name).push(k);
+    }
+  });
+  const label = k => ({ file: files[k].label, pos: k + 1 });
+  const problems = [], names = new Set(), readers = new Set();
+  let reads = 0;
+  scans.forEach((s, k) => {
+    const own = new Set(s.makes.map(m => m.name)), seen = new Set();
+    for (const u of s.uses) {
+      if (!u.now || own.has(u.name) || seen.has(u.name + ':' + u.line)) continue;
+      seen.add(u.name + ':' + u.line);
+      reads++; names.add(u.name); readers.add(files[k].label);
+      const now = madeNow.get(u.name) || [];
+      if (now.some(x => x < k)) continue;
+      const later = madeLater.get(u.name) || [];
+      const kind = now.length ? 'after' : later.length ? 'later' : 'none';
+      problems.push({ file: files[k].label, pos: k + 1, line: u.line, name: u.name, take: u.take, kind, makers: (now.length ? now : later).map(label) });
+    }
+  });
+  const groups = [];
+  for (const p of problems) {
+    const key = [p.file, p.line, p.kind, p.makers.map(m => m.file).join(',')].join('|');
+    const g = groups.find(x => x.key === key);
+    if (g) g.names.push(p.name);
+    else groups.push({ key, file: p.file, pos: p.pos, line: p.line, kind: p.kind, take: p.take, makers: p.makers, names: [p.name] });
+  }
+  return { problems, groups, reads, names: names.size, files: readers.size };
 }
 
 // 지도 → docs/DEPS.md 글. 날짜 · 커밋 · 줄 번호를 넣지 않는다(코드가 같으면 글도 같아야 점검이 비교할 수 있다)
